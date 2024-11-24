@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:security/utils/calenderPage/main_calendar.dart';
-import 'package:security/utils/calenderPage/schedule_card.dart';
+import 'package:security/widgets/calenderPage/main_calendar.dart';
+import 'package:security/widgets/calenderPage/schedule_card.dart';
 import '../style/colors.dart';
-import 'package:security/utils/calenderPage/today_banner.dart';
+import 'package:security/widgets/calenderPage/today_banner.dart';
 import 'package:security/widgets/common/bottom_nav_bar.dart';
-import '../utils/calenderPage/schedule_add.dart';
+import '../widgets/calenderPage/schedule_add.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
