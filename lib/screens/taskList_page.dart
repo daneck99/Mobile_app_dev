@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:security/widgets/teskListPage/progressBar.dart';
 import 'package:security/widgets/teskListPage/taskCard.dart';
+import 'package:security/widgets/teskListPage/teskDetail.dart';
 
 class TaskListScreen extends StatelessWidget {
   const TaskListScreen({Key? key}) : super(key: key);
@@ -33,17 +34,41 @@ class TaskListScreen extends StatelessWidget {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
-              children: const [
-                TaskCard(
-                  title: '강의실 순찰',
-                  time: '08:30 PM',
-                  participants: '1',
-                  repeatCount: '2',
-                  date: 'Mon, 19 Jul 2022',
-                  color: Color(0xFF3F51B5),
+              children: [
+                GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        barrierColor: Colors.black.withOpacity(0.5),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        builder: (context) => DraggableScrollableSheet(
+                          initialChildSize: 0.7,
+                          minChildSize: 0.5,
+                          maxChildSize: 0.95,
+                          builder: (context, scrollController) => TaskDetailSheet(
+                            title: '강의실 순찰',
+                            description: '안녕하세요 적당히 바람이 시원해',
+                            time: '08:30 PM',
+                          ),
+                        ),
+                      );
+                    },
+                    child: TaskCard(
+                      title: '강의실 순찰',
+                      time: '08:30 PM',
+                      participants: '1',
+                      repeatCount: '2',
+                      date: 'Mon, 19 Jul 2022',
+                      color: Color(0xFF3F51B5),
+                    )
                 ),
-                SizedBox(height: 12),
-                TaskCard(
+
+                const SizedBox(height: 12),
+                const TaskCard(
                   title: '열쇠 반납',
                   time: '08:30 PM',
                   participants: '1',
