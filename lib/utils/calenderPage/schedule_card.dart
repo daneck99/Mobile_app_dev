@@ -1,6 +1,6 @@
 //스케줄 등록 시 카드 등록 위젯
 import 'package:flutter/material.dart';
-import 'colors.dart';
+import '../../style/colors.dart';
 
 class _Time extends StatelessWidget {
   final int startTime;

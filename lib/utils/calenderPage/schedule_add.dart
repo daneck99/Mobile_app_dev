@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:security/custom_text_field.dart';
-import 'colors.dart';
+import 'package:security/utils/calenderPage/custom_text_field.dart';
+import '../../style/colors.dart';
 
 // 임시 저장용 스케줄 리스트
 List<Schedule> schedules = [];

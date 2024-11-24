@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:security/main_calendar.dart';
-import 'package:security/schedule_card.dart';
-import 'colors.dart';
-import 'package:security/today_banner.dart';
-import 'schedule_add.dart';
+import 'package:security/utils/calenderPage/main_calendar.dart';
+import 'package:security/utils/calenderPage/schedule_card.dart';
+import '../style/colors.dart';
+import 'package:security/utils/calenderPage/today_banner.dart';
+import 'package:security/widgets/common/bottom_nav_bar.dart';
+import '../utils/calenderPage/schedule_add.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -14,6 +15,7 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   int _selectedIndex = 0;
+
   DateTime selectedDate = DateTime.utc(
     DateTime.now().year,
     DateTime.now().month,
@@ -111,41 +113,14 @@ class _CalendarPageState extends State<CalendarPage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.blueAccent.shade700,
-        selectedFontSize: 16,
-        unselectedItemColor: primaryColor,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.download),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: '',
-          ),
-        ],
-      ),
+      bottomNavigationBar: CustomBottomNavBar(
+    selectedIndex: _selectedIndex,
+    onTap: (index) {
+    setState(() {
+    _selectedIndex = index;
+    });
+    },
+      )
     );
   }
 
