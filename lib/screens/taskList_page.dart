@@ -1,9 +1,10 @@
 // lib/features/tasks/screens/task_list_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:security/widgets/teskListPage/progressBar.dart';
-import 'package:security/widgets/teskListPage/taskCard.dart';
-import 'package:security/widgets/teskListPage/teskDetail.dart';
+import 'package:security/widgets/taskListPage/progressBar.dart';
+import 'package:security/widgets/taskListPage/taskCard.dart';
+import 'package:security/widgets/taskListPage/teskDetail.dart';
+import 'package:security/map/map_page.dart';
 
 class TaskListScreen extends StatelessWidget {
   const TaskListScreen({Key? key}) : super(key: key);
@@ -104,9 +105,17 @@ class CustomBottomNavBar extends StatelessWidget {
       selectedItemColor: const Color(0xFF3F51B5),
       unselectedItemColor: Colors.grey,
       currentIndex: 1,
+      onTap: (index) {
+        if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MapScreen()),
+          );
+        }
+      },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.downloading), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.map), label: ''),
         BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: ''),
         BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: ''),
         BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: ''),

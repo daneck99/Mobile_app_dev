@@ -33,7 +33,7 @@ class CustomBottomNavBar extends StatelessWidget {
           label: '',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.download),
+          icon: Icon(Icons.map),
           label: '',
         ),
         BottomNavigationBarItem(
