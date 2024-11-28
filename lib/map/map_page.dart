@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
+import 'package:security/style/colors.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -146,7 +147,7 @@ class _MapScreenState extends State<MapScreen> {
                   },
                   child: Text(
                     '310관',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(color: primaryColor, fontSize: 16),
                   ),
                 ),
                 SizedBox(width: 10),
@@ -160,7 +161,7 @@ class _MapScreenState extends State<MapScreen> {
                   },
                   child: Text(
                     '208관',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(color: primaryColor, fontSize: 16),
                   ),
                 ),
                 SizedBox(width: 10),
@@ -174,7 +175,7 @@ class _MapScreenState extends State<MapScreen> {
                   },
                   child: Text(
                     '207관',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(color: primaryColor, fontSize: 16),
                   ),
                 ),
               ],
