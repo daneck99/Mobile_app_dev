@@ -38,6 +38,9 @@ class MainCalendar extends StatelessWidget {
 
       calendarStyle: CalendarStyle(
         isTodayHighlighted: true,
+        todayDecoration: defaultBoxDeco.copyWith(
+            color: Colors.blueAccent.shade200
+        ),
         //박스 데코
         defaultDecoration: defaultBoxDeco,
         weekendDecoration: defaultBoxDeco.copyWith(
