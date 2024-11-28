@@ -97,12 +97,6 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('현재 위치'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // 이전 페이지로 돌아가기
-          },
-        ),
       ),
       body: Stack(
         children: [

@@ -113,14 +113,6 @@ class _CalendarPageState extends State<CalendarPage> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-    selectedIndex: _selectedIndex,
-    onTap: (index) {
-    setState(() {
-    _selectedIndex = index;
-    });
-    },
-      )
     );
   }
 

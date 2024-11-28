@@ -81,7 +81,6 @@ class TaskListScreen extends StatelessWidget {
             ),
           ),
           const ProgressBar(),
-          const CustomBottomNavBar(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -89,6 +88,7 @@ class TaskListScreen extends StatelessWidget {
         child: const Icon(Icons.add),
         onPressed: () {},
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
