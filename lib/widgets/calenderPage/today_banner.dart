@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../style/colors.dart';
+import 'package:security/style/colors.dart';
 
 class TodayBanner extends StatelessWidget {
   final DateTime selectedDate;

@@ -19,24 +19,59 @@ class _ScheduleAddState extends State<ScheduleAdd> {
   final _endTimeController = TextEditingController();
   final _contentController = TextEditingController(); // 내용 입력용 컨트롤러
 
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
 
+  // 시간 선택 함수
+  Future<void> _pickTime(BuildContext context, TextEditingController controller, bool isStartTime) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        final formattedTime = pickedTime.format(context); // HH:mm AM/PM 형식으로 변환
+        controller.text = formattedTime;
+
+        // 시작 시간 또는 종료 시간을 저장
+        if (isStartTime) {
+          _startTime = pickedTime;
+        } else {
+          _endTime = pickedTime;
+        }
+      });
+    }
+  }
 
   // 스케줄을 저장하는 함수
   void _saveSchedule() {
-    final int startTime = int.tryParse(_startTimeController.text) ?? 0;
-    final int endTime = int.tryParse(_endTimeController.text) ?? 0;
-    final String content = _contentController.text;
-
-    if (content.isEmpty) {
+    if (_startTime == null || _endTime == null || _contentController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('내용을 입력하세요')),
+        const SnackBar(content: Text('모든 필드를 채워주세요!')),
       );
       return;
     }
 
+    final DateTime startTime = DateTime(
+      widget.selectedDate.year,
+      widget.selectedDate.month,
+      widget.selectedDate.day,
+      _startTime!.hour,
+      _startTime!.minute,
+    );
+
+    final DateTime endTime = DateTime(
+      widget.selectedDate.year,
+      widget.selectedDate.month,
+      widget.selectedDate.day,
+      _endTime!.hour,
+      _endTime!.minute,
+    );
+
     final newSchedule = Schedule(
-      id: schedules.length + 1, // 임시 ID, 실제 DB에서는 auto-increment
-      content: content,
+      id: schedules.length + 1,
+      content: _contentController.text,
       date: widget.selectedDate,
       startTime: startTime,
       endTime: endTime,
@@ -46,8 +81,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
 
     // 데이터를 pop하여 CalendarPage로 전달
     Navigator.pop(context, newSchedule);
-
-    print("스케줄 저장됨: ${newSchedule.startTime} - ${newSchedule.endTime}");
+    print("스케줄 저장됨: $startTime - $endTime");
   }
 
   @override
@@ -61,36 +95,46 @@ class _ScheduleAddState extends State<ScheduleAdd> {
             Row(
               children: [
                 Expanded(
-                  child: CustomTextField(
-                    label: "Start Time",
-                    isTime: true,
-                    controller: _startTimeController,
-                    onSaved: (value) {
-                      _startTimeController.text = value ?? '';
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return '시작 시간을 입력하세요';
-                      }
-                      return null;
-                    },
+                  child: GestureDetector(
+                    onTap: () => _pickTime(context, _startTimeController, true),
+                    child: AbsorbPointer(
+                      child: CustomTextField(
+                        label: "Start Time",
+                        isTime: true,
+                        controller: _startTimeController,
+                        onSaved: (value) {
+                          _startTimeController.text = value ?? '';
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '시작 시간을 입력하세요';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(width: 16),
                 Expanded(
-                  child: CustomTextField(
-                    label: "End Time",
-                    isTime: true,
-                    controller: _endTimeController,
-                    onSaved: (value) {
-                      _endTimeController.text = value ?? '';
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return '종료 시간을 입력하세요';
-                      }
-                      return null;
-                    },
+                  child: GestureDetector(
+                    onTap: () => _pickTime(context, _endTimeController, false),
+                    child: AbsorbPointer(
+                      child: CustomTextField(
+                        label: "End Time",
+                        isTime: true,
+                        controller: _endTimeController,
+                        onSaved: (value) {
+                          _endTimeController.text = value ?? '';
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '종료 시간을 입력하세요';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -113,8 +157,31 @@ class _ScheduleAddState extends State<ScheduleAdd> {
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _saveSchedule,
-              child: Text("Save Schedule"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white, // 버튼 배경색
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16), // 모서리 둥글기
+                  side: BorderSide(
+                    color: primaryColor, // 경계선 색상
+                    width: 1.5, // 경계선 두께
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 20,
+                ), // 내부 패딩
+                elevation: 0, // 그림자 제거
+              ),
+              child: Text(
+                "Save Schedule",
+                style: TextStyle(
+                  color: primaryColor, // 텍스트 색상
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
             ),
+
           ],
         ),
       ),
@@ -127,8 +194,8 @@ class Schedule {
   final int id;
   final String content;
   final DateTime date;
-  final int startTime;
-  final int endTime;
+  final DateTime startTime;
+  final DateTime endTime;
   final int colorID;
   final DateTime createdAt;
 

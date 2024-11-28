@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../style/colors.dart';
-
-class CustomTextField extends StatelessWidget {
+import 'package:security/widgets/calenderPage/time_picker.dart'; // TimePicker import
+class CustomTextField extends StatefulWidget {
   final String label;
   final bool isTime;
   final FormFieldSetter<String> onSaved;
   final FormFieldValidator<String> validator;
-  final TextEditingController? controller; // 컨트롤러 추가
+  final TextEditingController? controller;
 
   const CustomTextField({
     super.key,
@@ -15,31 +15,38 @@ class CustomTextField extends StatelessWidget {
     required this.isTime,
     required this.onSaved,
     required this.validator,
-    this.controller, // 컨트롤러 초기화
+    this.controller,
   });
 
+  @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label,
+          widget.label,
           style: TextStyle(
             color: primaryColor,
             fontSize: 20,
             fontWeight: FontWeight.w300,
           ),
         ),
-        SizedBox(height: 8), // 텍스트와 입력 필드 사이 간격
+        const SizedBox(height: 8), // 텍스트와 입력 필드 사이 간격
         TextFormField(
-          controller: controller, // 컨트롤러 추가
-          onSaved: onSaved,
-          validator: validator,
+          readOnly: widget.isTime, // 시간 입력 필드는 읽기 전용
+          controller: widget.controller,
+          onSaved: widget.onSaved,
+          validator: widget.validator,
           cursorColor: Colors.grey,
-          maxLines: isTime ? 1 : null, // 시간이면 한 줄만
-          keyboardType: isTime ? TextInputType.number : TextInputType.multiline,
-          inputFormatters: isTime
+          maxLines: widget.isTime ? 1 : null,
+          keyboardType:
+          widget.isTime ? TextInputType.none : TextInputType.multiline,
+          inputFormatters: widget.isTime
               ? [
             FilteringTextInputFormatter.digitsOnly,
           ]
@@ -54,14 +61,32 @@ class CustomTextField extends StatelessWidget {
             ),
             filled: true,
             fillColor: Colors.grey.shade200,
-            contentPadding: EdgeInsets.all(12),
+            contentPadding: const EdgeInsets.all(12),
             hintStyle: TextStyle(
               color: Colors.grey.shade300,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
-            hintText: "Type in your text",
+            hintText: widget.label == "Start Time" || widget.label == "End Time"
+                ? "Select Time"
+                : "Type in your text",
           ),
+          onTap: widget.isTime
+              ? () async {
+            final TimeOfDay? pickedTime = await TimePickerUtil
+                .showTimePickerDialog(
+              context,
+              initialTime: TimeOfDay.now(),
+              use24HourFormat: true,
+            );
+
+            if (pickedTime != null) {
+              setState(() {
+                widget.controller?.text = pickedTime.format(context);
+              });
+            }
+          }
+              : null,
         ),
       ],
     );

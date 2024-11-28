@@ -1,10 +1,11 @@
 //스케줄 등록 시 카드 등록 위젯
 import 'package:flutter/material.dart';
-import '../../style/colors.dart';
+import 'package:security/style/colors.dart';
+import 'package:intl/intl.dart'; // intl 패키지 import
 
 class _Time extends StatelessWidget {
-  final int startTime;
-  final int endTime;
+  final DateTime startTime;
+  final DateTime endTime;
 
   const _Time({super.key, required this.startTime, required this.endTime});
 
@@ -16,15 +17,19 @@ class _Time extends StatelessWidget {
       fontSize: 18,
     );
 
+    // 시간을 "시간:분" 형식으로 포맷팅
+    final String formattedStartTime = DateFormat('hh:mm a').format(startTime);
+    final String formattedEndTime = DateFormat('hh:mm a').format(endTime);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '${startTime.toString().padLeft(2, '0')}:00',
+          formattedStartTime, // 포맷팅된 시작 시간
           style: defaultTextStyle,
         ),
         Text(
-          '${endTime.toString().padLeft(2,'0')}:00',
+          formattedEndTime, // 포맷팅된 종료 시간
           style: defaultTextStyle.copyWith(
             fontSize: 14,
           ),
@@ -66,8 +71,8 @@ class _Category extends StatelessWidget {
   }
 }
 class ScheduleCard extends StatelessWidget {
-  final int startTime;
-  final int endTime;
+  final DateTime startTime;
+  final DateTime endTime;
   final String content;
 
   const ScheduleCard({super.key, required this.startTime, required this.endTime, required this.content});
