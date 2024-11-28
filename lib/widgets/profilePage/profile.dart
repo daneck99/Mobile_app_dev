@@ -71,7 +71,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.of(context).pop();
               },
             ),
-            CustomBottomNavBar(selectedIndex: 3, onTap: (int ) {  },),
           ],
         );
       },
