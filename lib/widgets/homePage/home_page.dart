@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:security/map/map_page.dart';
 import 'package:security/screens/taskList_page.dart';
 import 'package:security/screens/calendar_page.dart';
+import 'package:security/widgets/profilePage/profile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +18,7 @@ class _HomePageState extends State<HomePage> {
     TaskListScreen(),
     MapScreen(), // MapScreenPage로 이동
     CalendarPage(),
-    Center(child: Text("프로필 화면")),
+    ProfilePage(),
   ];
 
   @override
