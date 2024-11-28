@@ -9,14 +9,12 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Profile information state
   String _name = "홍길동";
   String _enrollDate = "2023-01-01";
   File? _profileImage;
 
   final ImagePicker _picker = ImagePicker();
 
-  // Show edit dialog to edit profile information
   void _showEditDialog() {
     TextEditingController nameController = TextEditingController(text: _name);
     TextEditingController enrollDateController = TextEditingController(text: _enrollDate);
@@ -73,6 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Navigator.of(context).pop();
               },
             ),
+            CustomBottomNavBar(selectedIndex: 3, onTap: (int ) {  },),
           ],
         );
       },
@@ -119,20 +118,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             SizedBox(height: 20),
           ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Icon(Icons.home),
-              Icon(Icons.person),
-              Icon(Icons.settings),
-              Icon(Icons.info),
-            ],
-          ),
         ),
       ),
     );

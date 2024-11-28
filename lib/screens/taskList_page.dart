@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:security/widgets/taskListPage/progressBar.dart';
 import 'package:security/widgets/taskListPage/taskCard.dart';
-import 'package:security/widgets/taskListPage/teskDetail.dart';
+import 'package:security/widgets/taskListPage/taskDetail.dart';
 import 'package:security/map/map_page.dart';
 
 class TaskListScreen extends StatelessWidget {
