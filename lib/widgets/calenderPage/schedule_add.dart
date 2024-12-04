@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:security/widgets/calenderPage/color_picker.dart';
 import 'package:security/widgets/calenderPage/custom_text_field.dart';
 import '../../style/colors.dart';
 
@@ -7,17 +8,23 @@ List<Schedule> schedules = [];
 
 class ScheduleAdd extends StatefulWidget {
   final DateTime selectedDate;
+  final Schedule? initialSchedule; // 수정 시 기존 스케줄 데이터를 받음
 
-  const ScheduleAdd({super.key, required this.selectedDate});
+  const ScheduleAdd({super.key, required this.selectedDate, this.initialSchedule});
 
   @override
   State<ScheduleAdd> createState() => _ScheduleAddState();
 }
 
 class _ScheduleAddState extends State<ScheduleAdd> {
+  final _creatorController = TextEditingController();
   final _startTimeController = TextEditingController();
   final _endTimeController = TextEditingController();
   final _contentController = TextEditingController(); // 내용 입력용 컨트롤러
+  final _titleController = TextEditingController();
+  final _assigneeController = TextEditingController();
+  Color _selectedColor = Colors.pinkAccent.shade100; // 기본 선택 색상
+
 
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
@@ -43,6 +50,38 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       });
     }
   }
+  @override
+  void initState() {
+    super.initState();
+
+    // 수정 모드일 경우 기존 데이터를 초기화
+    if (widget.initialSchedule != null) {
+      final schedule = widget.initialSchedule!;
+      _creatorController.text = ''; // 보고자 (필요시 수정)
+      _assigneeController.text = ''; // 담당자 (필요시 수정)
+      _contentController.text = schedule.content;
+      _selectedColor = Color(schedule.colorID);
+
+      _startTime = TimeOfDay.fromDateTime(schedule.startTime);
+      _endTime = TimeOfDay.fromDateTime(schedule.endTime);
+    } else {
+      _selectedColor = Colors.pinkAccent.shade100; // 기본 색상
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // 여기서 `BuildContext`를 사용할 수 있음
+    if (widget.initialSchedule != null) {
+      _startTimeController.text =
+          TimeOfDay.fromDateTime(widget.initialSchedule!.startTime).format(context);
+      _endTimeController.text =
+          TimeOfDay.fromDateTime(widget.initialSchedule!.endTime).format(context);
+    }
+  }
+
 
   // 스케줄을 저장하는 함수
   void _saveSchedule() {
@@ -69,19 +108,20 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       _endTime!.minute,
     );
 
-    final newSchedule = Schedule(
-      id: schedules.length + 1,
-      content: _contentController.text,
+    // 새 스케줄 또는 수정된 스케줄 객체 생성
+    final schedule = Schedule(
+      id: widget.initialSchedule?.id ?? schedules.length + 1, // 수정 모드에서는 기존 ID 유지
+      content: _titleController.text, // 제목 저장
       date: widget.selectedDate,
       startTime: startTime,
       endTime: endTime,
-      colorID: 1,
-      createdAt: DateTime.now(),
+      colorID: _selectedColor.value,
+      createdAt: widget.initialSchedule?.createdAt ?? DateTime.now(), // 수정 모드에서는 기존 생성 시간 유지
     );
 
     // 데이터를 pop하여 CalendarPage로 전달
-    Navigator.pop(context, newSchedule);
-    print("스케줄 저장됨: $startTime - $endTime");
+    Navigator.pop(context, schedule);
+    print("스케줄 저장됨: $startTime - $endTime, 색상: $_selectedColor");
   }
 
   @override
@@ -92,6 +132,43 @@ class _ScheduleAddState extends State<ScheduleAdd> {
         child: Column(
           mainAxisSize: MainAxisSize.min, // 필요한 만큼만 공간 사용
           children: [
+            Row(
+              children: [
+                Expanded(
+                  child: CustomTextField(
+                    label: '보고자',
+                    isTime: false,
+                    controller: _creatorController,
+                    onSaved: (value) {
+                      _creatorController.text = value ?? '';
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '보고자를 입력하세요';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: CustomTextField(
+                    label: '담당자',
+                    isTime: false,
+                    controller: _assigneeController,
+                    onSaved: (value) {
+                      _assigneeController.text = value ?? '';
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '담당자를 입력하세요';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+              ],
+            ),
             Row(
               children: [
                 Expanded(
@@ -140,6 +217,22 @@ class _ScheduleAddState extends State<ScheduleAdd> {
               ],
             ),
             SizedBox(height: 16),
+            //제목 입력 코드
+            CustomTextField(
+              label: 'Type in your Text(제목)',
+              isTime: false,
+              controller: _titleController,
+              onSaved: (value) {
+                _titleController.text = value ?? '';
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return '내용을 입력하세요';
+                }
+                return null;
+              },
+            ),
+            SizedBox(height: 16),
             CustomTextField(
               label: 'Type in your Text(내용)',
               isTime: false,
@@ -154,6 +247,16 @@ class _ScheduleAddState extends State<ScheduleAdd> {
                 return null;
               },
             ),
+            SizedBox(height: 16),
+            // priority 설정 코드
+            ColorPicker(
+                selectedColor: _selectedColor,
+                onColorSelected: (color){
+                  setState(() {
+                  _selectedColor = color;
+                  print('Color updated: $color'); // 로그 추가
+              });
+            }),
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: _saveSchedule,
@@ -173,7 +276,8 @@ class _ScheduleAddState extends State<ScheduleAdd> {
                 elevation: 0, // 그림자 제거
               ),
               child: Text(
-                "Save Schedule",
+                widget.initialSchedule == null
+                    ? "Save Schedule" : "Update Schedule",
                 style: TextStyle(
                   color: primaryColor, // 텍스트 색상
                   fontWeight: FontWeight.bold,
@@ -181,7 +285,6 @@ class _ScheduleAddState extends State<ScheduleAdd> {
                 ),
               ),
             ),
-
           ],
         ),
       ),

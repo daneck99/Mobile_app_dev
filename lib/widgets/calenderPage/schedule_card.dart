@@ -56,13 +56,15 @@ class _Content extends StatelessWidget {
   }
 }
 class _Category extends StatelessWidget {
-  const _Category({super.key});
+  final Color color;
+
+  const _Category({super.key, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.pinkAccent.shade100,
+        color: color,
         shape: BoxShape.circle,
       ),
       width: 16,
@@ -74,32 +76,37 @@ class ScheduleCard extends StatelessWidget {
   final DateTime startTime;
   final DateTime endTime;
   final String content;
+  final Color color;
+  final VoidCallback onTap; // 클릭 시 실행될 콜백 추가
 
-  const ScheduleCard({super.key, required this.startTime, required this.endTime, required this.content});
+  const ScheduleCard({super.key, required this.startTime, required this.endTime, required this.content, required this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          width: 1.6,
-          color: primaryColor,
+    return GestureDetector(
+      onTap: onTap, // 클릭 이벤트 처리
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 1.6,
+            color: primaryColor,
+          ),
+          borderRadius: BorderRadius.circular(10.0),
         ),
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: IntrinsicHeight(
-          //IntrinsicHeight : 가장 높은 위젯이 차지하고 있는 높이만큼 높이 제함
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _Time(startTime: startTime, endTime: endTime),
-              const SizedBox(width: 16),
-              _Content(content: content),
-              const SizedBox(width: 16),
-              _Category(),
-            ],
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: IntrinsicHeight(
+            //IntrinsicHeight : 가장 높은 위젯이 차지하고 있는 높이만큼 높이 제함
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _Time(startTime: startTime, endTime: endTime),
+                const SizedBox(width: 16),
+                _Content(content: content),
+                const SizedBox(width: 16),
+                _Category(color: color), // 색상 전달
+              ],
+            ),
           ),
         ),
       ),

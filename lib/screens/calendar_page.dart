@@ -46,7 +46,10 @@ class _CalendarPageState extends State<CalendarPage> {
                   maxHeight: MediaQuery.of(context).size.height * 0.8, // 높이 제한 설정
                   minHeight: 100, // 최소 높이
                 ),
-                child: ScheduleAdd(selectedDate: selectedDate),
+                child: ScheduleAdd(
+                  selectedDate: selectedDate,
+                  initialSchedule: null, // 기존 데이터를 전달
+                ),
               );
             },
           );
@@ -104,6 +107,34 @@ class _CalendarPageState extends State<CalendarPage> {
                         startTime: schedule.startTime,
                         endTime: schedule.endTime,
                         content: schedule.content,
+                        color: Color(schedule.colorID), // 기존 저장된 색상 사용
+                        onTap: () async {
+                          final updatedSchedule = await showModalBottomSheet<Schedule>(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (_) {
+                              return Container(
+                                padding: EdgeInsets.all(16),
+                                constraints: BoxConstraints(
+                                  maxHeight: MediaQuery.of(context).size.height * 0.8,
+                                ),
+                                child: ScheduleAdd(
+                                  selectedDate: selectedDate,
+                                  initialSchedule: schedule, // 기존 데이터(수정할 스케쥴)를 전달
+                                ),
+                              );
+                            },
+                          );
+
+                          if (updatedSchedule != null) {
+                            setState(() {
+                              final index = schedules.indexWhere((s) => s.id == schedule.id);
+                              if (index != -1) {
+                                schedules[index] = updatedSchedule;
+                              }
+                            });
+                          }
+                        },
                       ),
                     );
                   },
