@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '/widgets/common/bottom_nav_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -111,9 +112,23 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
             SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _showEditDialog,
-              child: Text('프로필 설정'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: (){
+                    FirebaseAuth.instance.signOut();
+                  },
+                  child: Text('로그아웃'),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                ElevatedButton(
+                  onPressed: _showEditDialog,
+                  child: Text('프로필 설정'),
+                ),
+              ],
             ),
             SizedBox(height: 20),
           ],

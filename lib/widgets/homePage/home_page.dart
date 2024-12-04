@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     TaskListScreen(),
-    MapScreen(), // MapScreenPage로 이동
+    MapScreen(),
     CalendarPage(),
     ProfilePage(),
   ];
