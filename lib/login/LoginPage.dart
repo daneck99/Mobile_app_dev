@@ -66,6 +66,7 @@ class _LoginFormState extends State<LoginForm> {
                       setState(() {
                         saving = true;
                       });
+
                       final currentUser =
                       await _authentication.signInWithEmailAndPassword(
                           email: email, password: password);
@@ -76,8 +77,38 @@ class _LoginFormState extends State<LoginForm> {
                       setState(() {
                         saving = false;
                       });
-                    } catch (e) {
+                    } on FirebaseAuthException catch (e) {
+                      setState(() {
+                        saving = false;
+                      });
+
+                      String errorMessage = '';
+                      print("e.code = ");
                       print(e);
+                      if (e.code == 'invalid-credential') {
+                        errorMessage = '로그인에 실패하였습니다. 다시 시도해주세요.';
+                      } else {
+                        errorMessage = '로그인에 실패하였습니다. 다시 시도해주세요.';
+                      }
+
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('오류'),
+                          content: Text(errorMessage),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('확인'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } catch (e) {
+                      setState(() {
+                        saving = false;
+                      });
+                      print('Unexpected error: $e');
                     }
                   },
                   child: Text('로그인')),
