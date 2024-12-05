@@ -8,7 +8,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../login/LoginPage.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -33,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _loadProfile();
   }
 
-  /// 사용자의 프로필 정보를 Firestore에서 로드하는 메서드
+  // 사용자의 프로필 정보를 Firestore에서 로드하는 메서드
   Future<void> _loadProfile() async {
     setState(() {
       loading = true;
@@ -66,7 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  /// 프로필 정보를 업데이트하는 메서드
+  // 프로필 정보를 업데이트하는 메서드
   Future<void> _updateProfile(String name, String enrollDate, File? imageFile) async {
     setState(() {
       loading = true;
@@ -76,17 +75,16 @@ class _ProfilePageState extends State<ProfilePage> {
       if (user != null) {
         String? photoUrl = _photoUrl;
         if (imageFile != null) {
-          // 프로필 사진 업로드
+          // profile_image 업로드
           Reference storageRef = _storage.ref().child('profile_images').child('${user.uid}.png');
           UploadTask uploadTask = storageRef.putFile(imageFile);
           TaskSnapshot snapshot = await uploadTask;
           photoUrl = await snapshot.ref.getDownloadURL();
         }
 
-        // Firestore 업데이트
         await _firestore.collection('사용자').doc(user.uid).update({
           '이름': name,
-          '계정 생성일': DateFormat('yyyy-MM-dd').parse(enrollDate), // 문자열을 DateTime으로 변환
+          '계정 생성일': DateFormat('yyyy-MM-dd').parse(enrollDate), // 문자열-> DateTime으로 변환
           'photo': photoUrl,
         });
 
@@ -115,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  /// 프로필 수정 다이얼로그를 표시하는 메서드
+  // 프로필 수정 다이얼로그를 표시하는 메서드
   void _showEditDialog() {
     TextEditingController nameController = TextEditingController(text: _name);
     TextEditingController enrollDateController = TextEditingController(text: _enrollDate);
@@ -196,7 +194,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 String updatedName = nameController.text.trim();
                 String updatedEnrollDate = enrollDateController.text.trim();
 
-                // 입력값 검증
                 if (updatedName.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('이름을 입력해주세요.')),
@@ -209,7 +206,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                   return;
                 }
-                // 날짜 형식 검증
                 try {
                   DateFormat('yyyy-MM-dd').parseStrict(updatedEnrollDate);
                 } catch (e) {
@@ -232,10 +228,6 @@ class _ProfilePageState extends State<ProfilePage> {
   /// 로그아웃을 처리하는 메서드
   void _logout() async {
     await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-    );
   }
 
   @override
@@ -252,7 +244,6 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               Row(
                 children: [
-                  // 이미지 표시 로직 수정
                   _profileImage != null || _photoUrl.isNotEmpty
                       ? CachedNetworkImage(
                     imageUrl: _photoUrl,
@@ -310,7 +301,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
               SizedBox(height: 20),
-              // 추가적인 UI 요소가 필요하다면 여기에 추가
             ],
           ),
         ),
