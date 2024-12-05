@@ -1,21 +1,21 @@
-// lib/features/tasks/widgets/task_detail_sheet.dart
-
 import 'package:flutter/material.dart';
+import 'package:security/data/task.dart';
+
 
 class TaskDetailSheet extends StatelessWidget {
-  final String title;
-  final String description;
-  final String time;
+  final Task task;
 
   const TaskDetailSheet({
     Key? key,
-    required this.title,
-    required this.description,
-    required this.time,
+    required this.task,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final String time = "${task.startTime.hour}:${task.startTime.minute} - ${task.endTime.hour}:${task.endTime.minute}";
+    final String date = "${task.startTime.year}-${task.startTime.month}-${task.startTime.day}";
+    final String priority = _getPriorityString(task.priority);
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -65,7 +65,7 @@ class TaskDetailSheet extends StatelessWidget {
                     const Icon(Icons.flag_outlined, color: Color(0xFF3F51B5)),
                     const SizedBox(width: 12),
                     Text(
-                      title,
+                      task.title,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -75,7 +75,7 @@ class TaskDetailSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  description,
+                  task.description,
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -95,6 +95,34 @@ class TaskDetailSheet extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today_outlined, size: 20, color: Colors.grey[600]),
+                    const SizedBox(width: 8),
+                    Text(
+                      date,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(Icons.person_outline, size: 20, color: Colors.grey[600]),
+                    const SizedBox(width: 8),
+                    Text(
+                      task.assignee,
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 // Action icons
                 Row(
@@ -103,7 +131,7 @@ class TaskDetailSheet extends StatelessWidget {
                     _buildActionIcon(Icons.person_outline, '담당자'),
                     _buildActionIcon(Icons.calendar_today_outlined, '일정'),
                     _buildActionIcon(Icons.repeat, '반복'),
-                    _buildActionIcon(Icons.flag_outlined, '우선순위'),
+                    _buildActionIcon(Icons.flag_outlined, priority),
                     _buildActionIcon(Icons.more_horiz, '더보기'),
                   ],
                 ),
@@ -125,8 +153,7 @@ class TaskDetailSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                _buildTaskItem('729호 순찰',
-                    'Create three examples of wireframe types with different layouts later the client chooses one.'),
+                _buildTaskItem('729호 순찰', task.description),
               ],
             ),
           ),
@@ -207,5 +234,18 @@ class TaskDetailSheet extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getPriorityString(Priority priority) {
+    switch (priority) {
+      case Priority.low:
+        return 'Low';
+      case Priority.medium:
+        return 'Medium';
+      case Priority.high:
+        return 'High';
+      default:
+        return 'Unknown';
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:security/widgets/taskListPage/progressBar.dart';
 import 'package:security/widgets/taskListPage/taskCard.dart';
 import 'package:security/widgets/taskListPage/taskDetail.dart';
 import 'package:security/map/map_page.dart';
+import 'package:security/data/task.dart';
 
 class TaskListScreen extends StatelessWidget {
   const TaskListScreen({Key? key}) : super(key: key);
@@ -51,31 +52,17 @@ class TaskListScreen extends StatelessWidget {
                           minChildSize: 0.5,
                           maxChildSize: 0.95,
                           builder: (context, scrollController) => TaskDetailSheet(
-                            title: '강의실 순찰',
-                            description: '안녕하세요 적당히 바람이 시원해',
-                            time: '08:30 PM',
+                            task: mockTasks[2],
                           ),
                         ),
                       );
                     },
-                    child: TaskCard(
-                      title: '강의실 순찰',
-                      time: '08:30 PM',
-                      participants: '1',
-                      repeatCount: '2',
-                      date: 'Mon, 19 Jul 2022',
-                      color: Color(0xFF3F51B5),
-                    )
+                    child: TaskCard( task: mockTasks[1],)
                 ),
 
                 const SizedBox(height: 12),
-                const TaskCard(
-                  title: '열쇠 반납',
-                  time: '08:30 PM',
-                  participants: '1',
-                  repeatCount: '2',
-                  date: 'Mon, 19 Jul 2022',
-                  color: Color(0xFFF44336),
+                TaskCard(
+                  task: mockTasks[2],
                 ),
               ],
             ),
