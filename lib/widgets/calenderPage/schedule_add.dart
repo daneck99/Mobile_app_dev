@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:security/widgets/calenderPage/color_picker.dart';
 import 'package:security/widgets/calenderPage/custom_text_field.dart';
 import '../../style/colors.dart';
+import 'package:security/models/schedule_model.dart';
 
 // 임시 저장용 스케줄 리스트
 List<Schedule> schedules = [];
@@ -84,7 +86,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
 
 
   // 스케줄을 저장하는 함수
-  void _saveSchedule() {
+  void _saveSchedule() async {
     if (_startTime == null || _endTime == null || _contentController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('모든 필드를 채워주세요!')),
@@ -92,7 +94,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       return;
     }
 
-    final DateTime startTime = DateTime(
+    final startTime = DateTime(
       widget.selectedDate.year,
       widget.selectedDate.month,
       widget.selectedDate.day,
@@ -100,7 +102,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       _startTime!.minute,
     );
 
-    final DateTime endTime = DateTime(
+    final endTime = DateTime(
       widget.selectedDate.year,
       widget.selectedDate.month,
       widget.selectedDate.day,
@@ -108,21 +110,35 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       _endTime!.minute,
     );
 
-    // 새 스케줄 또는 수정된 스케줄 객체 생성
     final schedule = Schedule(
-      id: widget.initialSchedule?.id ?? schedules.length + 1, // 수정 모드에서는 기존 ID 유지
-      content: _titleController.text, // 제목 저장
+      id: widget.initialSchedule?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      content: _titleController.text,
       date: widget.selectedDate,
       startTime: startTime,
       endTime: endTime,
       colorID: _selectedColor.value,
-      createdAt: widget.initialSchedule?.createdAt ?? DateTime.now(), // 수정 모드에서는 기존 생성 시간 유지
+      createdAt: widget.initialSchedule?.createdAt ?? DateTime.now(),
     );
 
-    // 데이터를 pop하여 CalendarPage로 전달
-    Navigator.pop(context, schedule);
-    print("스케줄 저장됨: $startTime - $endTime, 색상: $_selectedColor");
+    try {
+      final collection = FirebaseFirestore.instance.collection('schedules');
+
+      if (widget.initialSchedule == null) {
+        // 새 스케줄 저장
+        await collection.doc(schedule.id).set(schedule.toJson());
+      } else {
+        // 기존 스케줄 업데이트
+        await collection.doc(schedule.id).update(schedule.toJson());
+      }
+
+      Navigator.pop(context, schedule);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('저장 중 오류 발생: $e')),
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +307,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
     );
   }
 }
-
+/*
 // 임시 스케줄 클래스
 class Schedule {
   final int id;
@@ -311,4 +327,4 @@ class Schedule {
     required this.colorID,
     required this.createdAt,
   });
-}
+}*/

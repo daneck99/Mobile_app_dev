@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:security/widgets/calenderPage/main_calendar.dart';
 import 'package:security/widgets/calenderPage/schedule_card.dart';
+import '../models/schedule_model.dart';
 import '../style/colors.dart';
 import 'package:security/widgets/calenderPage/today_banner.dart';
 import 'package:security/widgets/common/bottom_nav_bar.dart';
 import '../widgets/calenderPage/schedule_add.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -15,6 +17,31 @@ class CalendarPage extends StatefulWidget {
 
 class _CalendarPageState extends State<CalendarPage> {
   int _selectedIndex = 0;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<Schedule> schedules = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSchedules();
+  }
+
+  Future<void> _fetchSchedules() async {
+    try {
+      final snapshot = await _firestore.collection('schedules').get();
+      final fetchedSchedules = snapshot.docs.map((doc) {
+        return Schedule.fromJson(doc.data());
+      }).toList();
+
+      setState(() {
+        schedules = fetchedSchedules;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('데이터 가져오기 실패: $e')),
+      );
+    }
+  }
 
   DateTime selectedDate = DateTime.utc(
     DateTime.now().year,
@@ -24,8 +51,8 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 선택된 날짜의 일정 필터링
-    List<Schedule> filteredSchedules = schedules.where((schedule) {
+    // 선택된 날짜에 해당하는 일정 필터링
+    final filteredSchedules = schedules.where((schedule) {
       return schedule.date.year == selectedDate.year &&
           schedule.date.month == selectedDate.month &&
           schedule.date.day == selectedDate.day;
