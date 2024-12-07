@@ -60,8 +60,9 @@ class _ScheduleAddState extends State<ScheduleAdd> {
     // 수정 모드일 경우 기존 데이터를 초기화
     if (widget.initialSchedule != null) {
       final schedule = widget.initialSchedule!;
-      _creatorController.text = ''; // 보고자 (필요시 수정)
-      _assigneeController.text = ''; // 담당자 (필요시 수정)
+      _creatorController.text = schedule.creator; // 보고자 (필요시 수정)
+      _assigneeController.text = schedule.assignee; // 담당자 (필요시 수정)
+      _titleController.text = schedule.title;
       _contentController.text = schedule.content;
       _selectedColor = Color(schedule.colorID);
 
@@ -121,7 +122,10 @@ class _ScheduleAddState extends State<ScheduleAdd> {
 
     final schedule = Schedule(
       id: widget.initialSchedule?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      content: _titleController.text,
+      title: _titleController.text,
+      content: _contentController.text,
+      creator: _creatorController.text,
+      assignee: _assigneeController.text,
       date: widget.selectedDate,
       startTime: startTime,
       endTime: endTime,
@@ -166,7 +170,10 @@ class _ScheduleAddState extends State<ScheduleAdd> {
         final data = doc.data();
         return Schedule(
           id: data['id'],
+          title: data['title'],
           content: data['content'],
+          creator: data['creator'],
+          assignee: data['assignee'],
           date: DateTime.parse(data['date']),
           startTime: DateTime.parse(data['startTime']),
           endTime: DateTime.parse(data['endTime']),

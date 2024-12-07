@@ -1,6 +1,9 @@
 class Schedule {
   final String id; // Firestore에서는 id를 String으로 관리합니다.
+  final String title;
   final String content;
+  final String creator;
+  final String assignee;
   final DateTime date;
   final DateTime startTime;
   final DateTime endTime;
@@ -10,7 +13,10 @@ class Schedule {
 
   Schedule({
     required this.id,
+    required this.title,
     required this.content,
+    required this.creator,
+    required this.assignee,
     required this.date,
     required this.startTime,
     required this.endTime,
@@ -23,7 +29,10 @@ class Schedule {
   factory Schedule.fromJson(Map<String, dynamic> json) {
     return Schedule(
       id: json['id'],
-      content: json['content'],
+      title: json['title'],
+      content: json['content'] ?? '',
+      creator: json['creator'] ?? '',
+      assignee: json['assignee'] ?? '',
       date: DateTime.parse(json['date']),
       startTime: DateTime.parse(json['startTime']),
       endTime: DateTime.parse(json['endTime']),
@@ -37,7 +46,10 @@ class Schedule {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'title': title,
       'content': content,
+      'creator': creator,
+      'assignee': assignee,
       'date': date.toIso8601String(),
       'startTime': startTime.toIso8601String(),
       'endTime': endTime.toIso8601String(),

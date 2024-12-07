@@ -39,6 +39,26 @@ class _Time extends StatelessWidget {
   }
 }
 
+class _Title extends StatelessWidget {
+  final String title;
+
+  const _Title({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Container(
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    ));
+  }
+}
+
 class _Content extends StatelessWidget {
   final String content;
 
@@ -48,13 +68,54 @@ class _Content extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
         child: Container(
-          child: Text(
-            content,
-          ),
-        )
-    );
+      child: Text(
+        content,
+        style: const TextStyle(
+          fontSize: 13,
+        ),
+      ),
+    ));
   }
 }
+
+class _Creator extends StatelessWidget {
+  final String creator;
+
+  const _Creator({super.key, required this.creator});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Container(
+      child: Text(
+        creator,
+        style: const TextStyle(
+          fontSize: 13,
+        ),
+      ),
+    ));
+  }
+}
+
+class _Assignee extends StatelessWidget {
+  final String assignee;
+
+  const _Assignee({super.key, required this.assignee});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Container(
+      child: Text(
+        assignee,
+        style: const TextStyle(
+          fontSize: 13,
+        ),
+      ),
+    ));
+  }
+}
+
 class _Category extends StatelessWidget {
   final Color color;
 
@@ -72,14 +133,27 @@ class _Category extends StatelessWidget {
     );
   }
 }
+
 class ScheduleCard extends StatelessWidget {
   final DateTime startTime;
   final DateTime endTime;
+  final String title;
   final String content;
+  final String creator;
+  final String assignee;
   final Color color;
   final VoidCallback onTap; // 클릭 시 실행될 콜백 추가
 
-  const ScheduleCard({super.key, required this.startTime, required this.endTime, required this.content, required this.color, required this.onTap});
+  const ScheduleCard(
+      {super.key,
+      required this.startTime,
+      required this.endTime,
+      required this.title,
+      required this.content,
+      required this.creator,
+      required this.assignee,
+      required this.color,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +176,25 @@ class ScheduleCard extends StatelessWidget {
               children: [
                 _Time(startTime: startTime, endTime: endTime),
                 const SizedBox(width: 16),
-                _Content(content: content),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _Title(title: title),
+                    const SizedBox(height: 8),
+                    _Content(content: content)
+                  ],
+                )),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _Creator(creator: creator),
+                      _Assignee(assignee: assignee),
+                    ],
+                  ),
+                ),
                 const SizedBox(width: 16),
                 _Category(color: color), // 색상 전달
               ],
@@ -113,4 +205,3 @@ class ScheduleCard extends StatelessWidget {
     );
   }
 }
-

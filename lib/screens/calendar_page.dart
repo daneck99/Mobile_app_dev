@@ -158,7 +158,10 @@ class _CalendarPageState extends State<CalendarPage> {
                       child: ScheduleCard(
                         startTime: schedule.startTime,
                         endTime: schedule.endTime,
+                        title: schedule.title,
                         content: schedule.content,
+                        creator: schedule.creator,
+                        assignee: schedule.assignee,
                         color: Color(schedule.colorID), // 기존 저장된 색상 사용
                         onTap: () async {
                           final updatedSchedule = await showModalBottomSheet<Schedule>(
