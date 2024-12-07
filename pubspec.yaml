@@ -88,6 +88,7 @@ flutter:
   - assets/208floor_5.png
   - assets/208floor_6.png
   - assets/profile.png
+  - assets/icons/AppIcon.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

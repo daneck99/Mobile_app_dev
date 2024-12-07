@@ -6,6 +6,7 @@ class Schedule {
   final DateTime endTime;
   final int colorID;
   final DateTime createdAt;
+  final String userId; // 사용자 UID 필드 추가
 
   Schedule({
     required this.id,
@@ -15,6 +16,7 @@ class Schedule {
     required this.endTime,
     required this.colorID,
     required this.createdAt,
+    required this.userId, // 사용자 UID 초기화
   });
 
   // JSON에서 Schedule 객체로 변환
@@ -27,6 +29,7 @@ class Schedule {
       endTime: DateTime.parse(json['endTime']),
       colorID: json['colorID'],
       createdAt: DateTime.parse(json['createdAt']),
+      userId: json['userId'], // JSON에서 사용자 UID 읽어오기
     );
   }
 
@@ -40,6 +43,7 @@ class Schedule {
       'endTime': endTime.toIso8601String(),
       'colorID': colorID,
       'createdAt': createdAt.toIso8601String(),
+      'userId': userId, // 사용자 UID를 JSON에 포함
     };
   }
 }

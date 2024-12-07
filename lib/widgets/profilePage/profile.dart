@@ -8,6 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:security/login/LoginPage.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -228,6 +229,11 @@ class _ProfilePageState extends State<ProfilePage> {
   /// 로그아웃을 처리하는 메서드
   void _logout() async {
     await FirebaseAuth.instance.signOut();
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()), // LoginPage로 직접 이동
+    );
   }
 
   @override

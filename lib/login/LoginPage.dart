@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:security/login/RegisterPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:security/widgets/homePage/home_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -73,7 +74,12 @@ class _LoginFormState extends State<LoginForm> {
       
                       if (currentUser.user != null) {
                         _formkey.currentState!.reset();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
                       }
+
                       setState(() {
                         saving = false;
                       });
@@ -83,8 +89,6 @@ class _LoginFormState extends State<LoginForm> {
                       });
 
                       String errorMessage = '';
-                      print("e.code = ");
-                      print(e);
                       if (e.code == 'invalid-credential') {
                         errorMessage = '로그인에 실패하였습니다. 다시 시도해주세요.';
                       } else {

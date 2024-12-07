@@ -7,6 +7,7 @@ import 'package:security/widgets/calenderPage/today_banner.dart';
 import 'package:security/widgets/common/bottom_nav_bar.dart';
 import '../widgets/calenderPage/schedule_add.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -28,7 +29,16 @@ class _CalendarPageState extends State<CalendarPage> {
 
   Future<void> _fetchSchedules() async {
     try {
-      final snapshot = await _firestore.collection('schedules').get();
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('로그인된 사용자가 없습니다.');
+      }
+
+      final snapshot = await _firestore
+          .collection('schedules')
+          .where('userId', isEqualTo: user.uid) // 로그인한 사용자 UID로 필터링
+          .get();
+
       final fetchedSchedules = snapshot.docs.map((doc) {
         return Schedule.fromJson(doc.data());
       }).toList();
@@ -56,11 +66,12 @@ class _CalendarPageState extends State<CalendarPage> {
       return schedule.date.year == selectedDate.year &&
           schedule.date.month == selectedDate.month &&
           schedule.date.day == selectedDate.day;
-    }).toList();
+    }).toList()..sort((a, b) => a.startTime.compareTo(b.startTime));
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: primaryColor,
+        tooltip: '새 일정 추가',
         onPressed: () async {
           // ScheduleAdd 모달 창 열기
           final newSchedule = await showModalBottomSheet<Schedule>(
@@ -106,7 +117,14 @@ class _CalendarPageState extends State<CalendarPage> {
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8),
-                child: ListView.separated(
+                child: filteredSchedules.isEmpty
+                    ? Center(
+                  child: Text(
+                    '일정이 없습니다.',
+                    style: TextStyle(fontSize: 16, color: Colors.black),
+                  ),
+                )
+                    : ListView.separated(
                   itemCount: filteredSchedules.length,
                   separatorBuilder: (context, index) {
                     return SizedBox(height: 8);
@@ -116,13 +134,20 @@ class _CalendarPageState extends State<CalendarPage> {
                     return Dismissible(
                       key: Key(schedule.id.toString()), // 각 스케줄 고유 키 설정
                       direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로만 스와이프
-                      onDismissed: (direction) {
-                        setState(() {
-                          schedules.removeWhere((s) => s.id == schedule.id); // 스케줄 삭제
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${schedule.content}이 삭제되었습니다.')),
-                        );
+                      onDismissed: (direction) async {
+                        try {
+                          await _firestore.collection('schedules').doc(schedule.id).delete();
+                          setState(() {
+                            schedules.removeWhere((s) => s.id == schedule.id);
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('${schedule.content}이 삭제되었습니다.')),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('스케줄 삭제 실패: $e')),
+                          );
+                        }
                       },
                       background: Container(
                         color: Colors.red,
@@ -154,12 +179,24 @@ class _CalendarPageState extends State<CalendarPage> {
                           );
 
                           if (updatedSchedule != null) {
-                            setState(() {
-                              final index = schedules.indexWhere((s) => s.id == schedule.id);
-                              if (index != -1) {
-                                schedules[index] = updatedSchedule;
-                              }
-                            });
+                            try {
+                              await _firestore
+                                  .collection('schedules')
+                                  .doc(updatedSchedule.id)
+                                  .update(updatedSchedule.toJson());
+
+                              setState(() {
+                                final index =
+                                schedules.indexWhere((s) => s.id == schedule.id);
+                                if (index != -1) {
+                                  schedules[index] = updatedSchedule;
+                                }
+                              });
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('스케줄 업데이트 실패: $e')),
+                              );
+                            }
                           }
                         },
                       ),
@@ -168,6 +205,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
               ),
             ),
+
           ],
         ),
       ),

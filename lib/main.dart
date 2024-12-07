@@ -11,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'login/LoginPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'splash_screen.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,11 +28,7 @@ void main() async{
       home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return const HomePage();
-            } else {
-              return const LoginPage();
-            }
+            return SplashScreen();
           }
       ),
     )

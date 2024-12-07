@@ -4,6 +4,7 @@ import 'package:security/widgets/calenderPage/color_picker.dart';
 import 'package:security/widgets/calenderPage/custom_text_field.dart';
 import '../../style/colors.dart';
 import 'package:security/models/schedule_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // 임시 저장용 스케줄 리스트
 List<Schedule> schedules = [];
@@ -94,6 +95,14 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       return;
     }
 
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('로그인이 필요합니다.')),
+      );
+      return;
+    }
+
     final startTime = DateTime(
       widget.selectedDate.year,
       widget.selectedDate.month,
@@ -118,6 +127,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       endTime: endTime,
       colorID: _selectedColor.value,
       createdAt: widget.initialSchedule?.createdAt ?? DateTime.now(),
+      userId: user.uid, // 현재 사용자 UID 추가
     );
 
     try {
@@ -138,6 +148,42 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       );
     }
   }
+
+  void _loadUserSchedules() async {
+    final User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('로그인된 사용자가 없습니다.');
+      return;
+    }
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('schedules')
+          .where('userId', isEqualTo: user.uid) // 사용자 UID 필터링
+          .get();
+
+      final List<Schedule> userSchedules = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return Schedule(
+          id: data['id'],
+          content: data['content'],
+          date: DateTime.parse(data['date']),
+          startTime: DateTime.parse(data['startTime']),
+          endTime: DateTime.parse(data['endTime']),
+          colorID: data['colorID'],
+          createdAt: DateTime.parse(data['createdAt']),
+          userId: data['userId'],
+        );
+      }).toList();
+
+      setState(() {
+        schedules = userSchedules;
+      });
+    } catch (e) {
+      print('스케줄 로드 오류: $e');
+    }
+  }
+
 
 
   @override
@@ -307,24 +353,3 @@ class _ScheduleAddState extends State<ScheduleAdd> {
     );
   }
 }
-/*
-// 임시 스케줄 클래스
-class Schedule {
-  final int id;
-  final String content;
-  final DateTime date;
-  final DateTime startTime;
-  final DateTime endTime;
-  final int colorID;
-  final DateTime createdAt;
-
-  Schedule({
-    required this.id,
-    required this.content,
-    required this.date,
-    required this.startTime,
-    required this.endTime,
-    required this.colorID,
-    required this.createdAt,
-  });
-}*/
