@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:security/data/task.dart';
-
+import 'package:security/models/schedule_model.dart';
 
 class TaskDetailSheet extends StatelessWidget {
-  final Task task;
+  final Schedule schedule;
 
   const TaskDetailSheet({
     Key? key,
-    required this.task,
+    required this.schedule,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final String time = "${task.startTime.hour}:${task.startTime.minute} - ${task.endTime.hour}:${task.endTime.minute}";
-    final String date = "${task.startTime.year}-${task.startTime.month}-${task.startTime.day}";
-    final String priority = _getPriorityString(task.priority);
+    final String time = "${schedule.startTime.hour}:${schedule.startTime.minute.toString().padLeft(2, '0')} - ${schedule.endTime.hour}:${schedule.endTime.minute.toString().padLeft(2, '0')}";
+    final String date = "${schedule.date.year}-${schedule.date.month.toString().padLeft(2, '0')}-${schedule.date.day.toString().padLeft(2, '0')}";
 
     return Container(
       decoration: const BoxDecoration(
@@ -54,7 +52,7 @@ class TaskDetailSheet extends StatelessWidget {
               ],
             ),
           ),
-          // Task details
+          // Schedule details
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -64,18 +62,21 @@ class TaskDetailSheet extends StatelessWidget {
                   children: [
                     const Icon(Icons.flag_outlined, color: Color(0xFF3F51B5)),
                     const SizedBox(width: 12),
-                    Text(
-                      task.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: Text(
+                        schedule.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  task.description,
+                  schedule.content,
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -115,7 +116,9 @@ class TaskDetailSheet extends StatelessWidget {
                     Icon(Icons.person_outline, size: 20, color: Colors.grey[600]),
                     const SizedBox(width: 8),
                     Text(
-                      task.assignee,
+                      schedule.assignee.isNotEmpty
+                          ? schedule.assignee
+                          : '담당자 없음',
                       style: TextStyle(
                         color: Colors.grey[600],
                         fontSize: 14,
@@ -131,7 +134,7 @@ class TaskDetailSheet extends StatelessWidget {
                     _buildActionIcon(Icons.person_outline, '담당자'),
                     _buildActionIcon(Icons.calendar_today_outlined, '일정'),
                     _buildActionIcon(Icons.repeat, '반복'),
-                    _buildActionIcon(Icons.flag_outlined, priority),
+                    _buildActionIcon(Icons.flag_outlined, '우선순위'),
                     _buildActionIcon(Icons.more_horiz, '더보기'),
                   ],
                 ),
@@ -139,24 +142,25 @@ class TaskDetailSheet extends StatelessWidget {
             ),
           ),
           // Task content section
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '업무 내용',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+          if (schedule.content.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '일정 내용',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                _buildTaskItem('729호 순찰', task.description),
-              ],
+                  const SizedBox(height: 12),
+                  _buildTaskItem(schedule.title, schedule.content),
+                ],
+              ),
             ),
-          ),
           // Add task button
           Padding(
             padding: const EdgeInsets.all(20),
@@ -175,7 +179,7 @@ class TaskDetailSheet extends StatelessWidget {
                 children: [
                   Icon(Icons.add),
                   SizedBox(width: 8),
-                  Text('업무 추가'),
+                  Text('일정 추가'),
                 ],
               ),
             ),
@@ -234,18 +238,5 @@ class TaskDetailSheet extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _getPriorityString(Priority priority) {
-    switch (priority) {
-      case Priority.low:
-        return 'Low';
-      case Priority.medium:
-        return 'Medium';
-      case Priority.high:
-        return 'High';
-      default:
-        return 'Unknown';
-    }
   }
 }

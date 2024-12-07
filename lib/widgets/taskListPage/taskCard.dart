@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:security/data/task.dart';
-
-
-
+import 'package:security/models/schedule_model.dart';
 
 class TaskCard extends StatelessWidget {
-  final Task task;
+  final Schedule schedule;
 
   const TaskCard({
     Key? key,
-    required this.task,
+    required this.schedule,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final String time = "${task.startTime.hour}:${task.startTime.minute} - ${task.endTime.hour}:${task.endTime.minute}";
-    final String date = "${task.startTime.year}-${task.startTime.month}-${task.startTime.day}";
-    final String priority = _getPriorityString(task.priority);
-    final Color priorityColor = _getPriorityColor(task.priority);
+    // Formatting time and date
+    final String time = "${schedule.startTime.hour}:${schedule.startTime.minute.toString().padLeft(2, '0')} - ${schedule.endTime.hour}:${schedule.endTime.minute.toString().padLeft(2, '0')}";
+    final String date = "${schedule.date.year}-${schedule.date.month.toString().padLeft(2, '0')}-${schedule.date.day.toString().padLeft(2, '0')}";
 
     return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -34,10 +31,11 @@ class TaskCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          // Title section
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: priorityColor,
+              color: Color(schedule.colorID),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(8),
                 topRight: Radius.circular(8),
@@ -47,21 +45,22 @@ class TaskCard extends StatelessWidget {
               children: [
                 const Icon(Icons.flag_outlined, color: Colors.white),
                 const SizedBox(width: 8),
-                Text(
-                  task.title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
+                Expanded(
+                  child: Text(
+                    schedule.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Spacer(),
-                const Icon(
-                  Icons.more_horiz,
-                  color: Colors.white,
-                ),
+                const Icon(Icons.more_horiz, color: Colors.white),
               ],
             ),
           ),
+          // Details section
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -79,7 +78,9 @@ class TaskCard extends StatelessWidget {
                 Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
                 const SizedBox(width: 4),
                 Text(
-                  task.assignee,
+                  schedule.assignee.isNotEmpty
+                      ? schedule.assignee
+                      : '담당자 없음',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -96,34 +97,22 @@ class TaskCard extends StatelessWidget {
               ],
             ),
           ),
+          // Optional content section
+          if (schedule.content.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                schedule.content,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
         ],
       ),
     );
-  }
-
-  String _getPriorityString(Priority priority) {
-    switch (priority) {
-      case Priority.low:
-        return 'Low';
-      case Priority.medium:
-        return 'Medium';
-      case Priority.high:
-        return 'High';
-      default:
-        return 'Unknown';
-    }
-  }
-
-  Color _getPriorityColor(Priority priority) {
-    switch (priority) {
-      case Priority.low:
-        return Colors.green;
-      case Priority.medium:
-        return Colors.orange;
-      case Priority.high:
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
   }
 }
