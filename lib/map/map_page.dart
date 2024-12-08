@@ -18,7 +18,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation(); // 초기 위치 가져오기
+    _getCurrentLocation(); // 초기 위치
     _startLocationUpdates(); // 실시간 위치 업데이트
   }
 
@@ -29,7 +29,7 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // 현재 위치 가져오기 함수
+  // 현재 위치 가져오기
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -88,7 +88,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-    positionStream?.cancel(); // 앱 종료 시 위치 스트림 해제
+    positionStream?.cancel();
     super.dispose();
   }
 
@@ -133,7 +133,6 @@ class _MapScreenState extends State<MapScreen> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    // '310관' 버튼 눌렀을 때 FloorInfoPage로 이동
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => FloorInfoPage_310()),
@@ -147,7 +146,6 @@ class _MapScreenState extends State<MapScreen> {
                 SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {
-                    // '310관' 버튼 눌렀을 때 FloorInfoPage로 이동
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => FloorInfoPage_208()),
@@ -161,7 +159,6 @@ class _MapScreenState extends State<MapScreen> {
                 SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {
-                    // '310관' 버튼 눌렀을 때 FloorInfoPage로 이동
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => FloorInfoPage_207()),
@@ -217,7 +214,6 @@ class FloorInfoPage_310 extends StatelessWidget {
           return ListTile(
             title: Text(floorInfo[index]),
             onTap: () {
-              // 해당 층 클릭 시 FloorDetailPage로 이동하며 층 이름 전달
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -234,14 +230,7 @@ class FloorInfoPage_310 extends StatelessWidget {
 
 // 층별 정보 페이지
 class FloorInfoPage_208 extends StatelessWidget {
-  // 지하 6층부터 지상 10층까지의 층별 정보 리스트
   final List<String> floorInfo = [
-    '지하 6층',
-    '지하 5층',
-    '지하 4층',
-    '지하 3층',
-    '지하 2층',
-    '지하 1층',
     '1층',
     '2층',
     '3층',
@@ -262,7 +251,6 @@ class FloorInfoPage_208 extends StatelessWidget {
           return ListTile(
             title: Text(floorInfo[index]),
             onTap: () {
-              // 해당 층 클릭 시 FloorDetailPage로 이동하며 층 이름 전달
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -278,14 +266,7 @@ class FloorInfoPage_208 extends StatelessWidget {
 }
 
 class FloorInfoPage_207 extends StatelessWidget {
-  // 지하 6층부터 지상 10층까지의 층별 정보 리스트
   final List<String> floorInfo = [
-    '지하 6층',
-    '지하 5층',
-    '지하 4층',
-    '지하 3층',
-    '지하 2층',
-    '지하 1층',
     '1층',
     '2층',
     '3층',
@@ -308,7 +289,6 @@ class FloorInfoPage_207 extends StatelessWidget {
           return ListTile(
             title: Text(floorInfo[index]),
             onTap: () {
-              // 해당 층 클릭 시 FloorDetailPage로 이동하며 층 이름 전달
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -328,7 +308,6 @@ class FloorDetailPage extends StatelessWidget {
 
   FloorDetailPage({required this.floorName});
 
-  // 층별 이미지 경로를 매핑하는 함수
   String _getImagePath(String floorName) {
     final Map<String, String> floorImages = {
       '지하 6층': 'assets/parking.png',
@@ -342,25 +321,23 @@ class FloorDetailPage extends StatelessWidget {
       '3층': 'assets/floor_3.png',
       '4층': 'assets/floor_4.png',
       '5층': 'assets/floor_5.png',
-      '6층': 'assets/floor_6.png',
-      '7층': 'assets/floor_7.png',
-      '8층': 'assets/floor_8.png',
-      '9층': 'assets/floor_9.png',
-      '10층': 'assets/floor_10.png',
+      '6층': 'assets/floor_5.png',
+      '7층': 'assets/floor_5.png',
+      '8층': 'assets/floor_5.png',
+      '9층': 'assets/floor_5.png',
+      '10층': 'assets/floor_5.png',
     };
 
-    // 이미지 경로를 반환하거나 기본 경로를 설정
     return floorImages[floorName] ?? 'assets/default_floor.png';
   }
 
   @override
   Widget build(BuildContext context) {
-    // 이미지 경로 가져오기
     final imagePath = _getImagePath(floorName);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(floorName), // 클릭한 층의 이름 표시
+        title: Text(floorName),
       ),
       body: Center(
         child: Column(
