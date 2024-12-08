@@ -43,21 +43,7 @@ class _CalendarPageState extends State<CalendarPage> {
         return Schedule.fromJson(doc.data());
       }).toList();
 
-      // 날짜별 Task 개수 계산
-      final Map<DateTime, int> taskCounts = {};
-      for (var schedule in fetchedSchedules) {
-        final date = DateTime(
-          schedule.date.year,
-          schedule.date.month,
-          schedule.date.day,
-        );
-        taskCounts[date] = (taskCounts[date] ?? 0) + 1;
-      }
-
-      setState(() {
-        schedules = fetchedSchedules;
-        taskCountByDate = taskCounts;
-      });
+      _updateTaskCounts(fetchedSchedules);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('데이터 가져오기 실패: $e')),
@@ -65,9 +51,22 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
+  void _updateTaskCounts(List<Schedule> schedules) {
+    final Map<DateTime, int> taskCounts = {};
+
+    for (var schedule in schedules) {
+      final date = DateTime(schedule.date.year, schedule.date.month, schedule.date.day);
+      taskCounts[date] = (taskCounts[date] ?? 0) + 1;
+    }
+
+    setState(() {
+      this.schedules = schedules;
+      taskCountByDate = taskCounts;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // 선택된 날짜에 해당하는 일정 필터링
     final filteredSchedules = schedules.where((schedule) {
       return schedule.date.year == selectedDate.year &&
           schedule.date.month == selectedDate.month &&
@@ -106,7 +105,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
               setState(() {
                 schedules.add(newSchedule);
-                _updateTaskCount(newSchedule.date);
+                _updateTaskCounts(schedules);
               });
             } catch (e) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -122,8 +121,13 @@ class _CalendarPageState extends State<CalendarPage> {
           children: [
             MainCalendar(
               selectedDate: selectedDate,
-              onDaySelected: onDaySelected,
+              initialFocusedDate: selectedDate,
               taskCountByDate: taskCountByDate,
+              onDaySelected: (selectedDay, focusedDay) {
+                setState(() {
+                  selectedDate = selectedDay;
+                });
+              },
             ),
             const SizedBox(height: 8.0),
             TodayBanner(
@@ -160,7 +164,7 @@ class _CalendarPageState extends State<CalendarPage> {
 
                           setState(() {
                             schedules.remove(schedule);
-                            _updateTaskCount(schedule.date);
+                            _updateTaskCounts(schedules);
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -188,8 +192,7 @@ class _CalendarPageState extends State<CalendarPage> {
                         assignee: schedule.assignee,
                         color: Color(schedule.colorID),
                         onTap: () async {
-                          final updatedSchedule =
-                          await showModalBottomSheet<Schedule>(
+                          final updatedSchedule = await showModalBottomSheet<Schedule>(
                             context: context,
                             isScrollControlled: true,
                             builder: (_) {
@@ -237,17 +240,5 @@ class _CalendarPageState extends State<CalendarPage> {
         ),
       ),
     );
-  }
-
-  void onDaySelected(DateTime selectedDate, DateTime focusedDate) {
-    setState(() {
-      this.selectedDate = selectedDate;
-    });
-  }
-
-  void _updateTaskCount(DateTime date) {
-    final normalizedDate = DateTime(date.year, date.month, date.day);
-    taskCountByDate[normalizedDate] =
-        schedules.where((s) => s.date == normalizedDate).length;
   }
 }
