@@ -11,7 +11,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryColor,
+      backgroundColor: const Color(0xFFF5F5F5), // 밝은 회색
       body: const LoginForm(),
     );
   }
@@ -44,9 +44,9 @@ class _LoginFormState extends State<LoginForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Login',
+                  '로그인',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF333333), // 짙은 회색
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                   ),
@@ -55,21 +55,21 @@ class _LoginFormState extends State<LoginForm> {
                 const Text(
                   'Email',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF333333), // 짙은 회색
                     fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Color(0xFF333333)), // 짙은 회색
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.grey[900],
+                    fillColor: Colors.white, // 흰색 배경
                     hintText: 'Enter your Email',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    hintStyle: const TextStyle(color: Color(0xFFAAAAAA)), // 연한 회색
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: const Color(0xFFCCCCCC)), // 연한 테두리
                     ),
                   ),
                   onChanged: (value) {
@@ -80,22 +80,22 @@ class _LoginFormState extends State<LoginForm> {
                 const Text(
                   'Password',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF333333), // 짙은 회색
                     fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   obscureText: true,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Color(0xFF333333)), // 짙은 회색
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.grey[900],
+                    fillColor: Colors.white, // 흰색 배경
                     hintText: 'Enter your Password',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    hintStyle: const TextStyle(color: Color(0xFFAAAAAA)), // 연한 회색
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(color: const Color(0xFFCCCCCC)), // 연한 테두리
                     ),
                   ),
                   onChanged: (value) {
@@ -105,7 +105,7 @@ class _LoginFormState extends State<LoginForm> {
                 const SizedBox(height: 40),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: const Color(0xFF4A90E2), // 진한 블루
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -168,7 +168,7 @@ class _LoginFormState extends State<LoginForm> {
                   child: const Text(
                     'Login',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontSize: 18,
                     ),
                   ),
@@ -179,12 +179,12 @@ class _LoginFormState extends State<LoginForm> {
                   children: [
                     const Text(
                       'Don\'t have an account?',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Color(0xFF333333)), // 짙은 회색
                     ),
                     TextButton(
                       child: const Text(
                         'Sign Up',
-                        style: TextStyle(color: Colors.deepPurple),
+                        style: TextStyle(color: Color(0xFF4A90E2)), // 진한 블루
                       ),
                       onPressed: () {
                         Navigator.push(
@@ -203,4 +203,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-
