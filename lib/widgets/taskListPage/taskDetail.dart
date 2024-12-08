@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:security/models/schedule_model.dart';
 
+
 class TaskDetailSheet extends StatelessWidget {
+
   final Schedule schedule;
 
   const TaskDetailSheet({
@@ -11,232 +13,242 @@ class TaskDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String time = "${schedule.startTime.hour}:${schedule.startTime.minute.toString().padLeft(2, '0')} - ${schedule.endTime.hour}:${schedule.endTime.minute.toString().padLeft(2, '0')}";
-    final String date = "${schedule.date.year}-${schedule.date.month.toString().padLeft(2, '0')}-${schedule.date.day.toString().padLeft(2, '0')}";
-
+    final String time =
+        "${schedule.startTime.hour}:${schedule.startTime.minute.toString().padLeft(2, '0')} - ${schedule.endTime.hour}:${schedule.endTime.minute.toString().padLeft(2, '0')}";
+    final String date =
+        "${schedule.date.year}-${schedule.date.month.toString().padLeft(2, '0')}-${schedule.date.day.toString().padLeft(2, '0')}";
+    WidgetsFlutterBinding.ensureInitialized();
     return Container(
+
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle bar
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
             ),
-          ),
-          // Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
+            const SizedBox(height: 16),
+
+            // Header
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  '상세 내용',
+                  'Task Details',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Icons.close, color: Colors.grey),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
-          ),
-          // Schedule details
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.flag_outlined, color: Color(0xFF3F51B5)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        schedule.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  schedule.content,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Icon(Icons.access_time, size: 20, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
-                    Text(
-                      time,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today_outlined, size: 20, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
-                    Text(
-                      date,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.person_outline, size: 20, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
-                    Text(
-                      schedule.assignee.isNotEmpty
-                          ? schedule.assignee
-                          : '담당자 없음',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // Action icons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildActionIcon(Icons.person_outline, '담당자'),
-                    _buildActionIcon(Icons.calendar_today_outlined, '일정'),
-                    _buildActionIcon(Icons.repeat, '반복'),
-                    _buildActionIcon(Icons.flag_outlined, '우선순위'),
-                    _buildActionIcon(Icons.more_horiz, '더보기'),
-                  ],
-                ),
-              ],
+            const SizedBox(height: 20),
+
+            // Details section
+            _buildDetailRow(
+              icon: Icons.flag,
+              label: "Title",
+              value: schedule.title,
+              boldValue: true,
             ),
-          ),
-          // Task content section
-          if (schedule.content.isNotEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              child: Column(
+            const SizedBox(height: 12),
+            _buildDetailRow(
+              icon: Icons.calendar_today_outlined,
+              label: "Date",
+              value: date,
+            ),
+            const SizedBox(height: 12),
+            _buildDetailRow(
+              icon: Icons.access_time,
+              label: "Time",
+              value: time,
+            ),
+            const SizedBox(height: 12),
+            _buildDetailRow(
+              icon: Icons.person_outline,
+              label: "Assignee",
+              value: schedule.assignee.isNotEmpty
+                  ? schedule.assignee
+                  : "Unassigned",
+            ),
+            if (schedule.location != null && schedule.location!.isNotEmpty)
+              const SizedBox(height: 12),
+            if (schedule.location != null && schedule.location!.isNotEmpty)
+              _buildDetailRow(
+                icon: Icons.location_on,
+                label: "Location",
+                value: schedule.location!,
+              ),
+            const SizedBox(height: 12),
+
+            // Tags
+            if (schedule.tags != null && schedule.tags!.isNotEmpty)
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '일정 내용',
+                    "Tags",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  _buildTaskItem(schedule.title, schedule.content),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    children: schedule.tags!
+                        .map((tag) => Chip(
+                      label: Text(tag),
+                      backgroundColor: Colors.grey[200],
+                    ))
+                        .toList(),
+                  ),
                 ],
               ),
+            const SizedBox(height: 20),
+
+            // Description
+            if (schedule.content.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Description",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    schedule.content,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 20),
+
+            // Completion Status
+            Row(
+              children: [
+                Icon(
+                  schedule.isCompleted
+                      ? Icons.check_circle
+                      : Icons.circle_outlined,
+                  size: 24,
+                  color: schedule.isCompleted ? Colors.green : Colors.grey,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  schedule.isCompleted ? "Completed" : "In Progress",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: schedule.isCompleted ? Colors.green : Colors.grey,
+                  ),
+                ),
+                if (schedule.isCompleted && schedule.completedAt != null)
+                  const SizedBox(width: 12),
+                if (schedule.isCompleted && schedule.completedAt != null)
+                  Text(
+                    "at ${schedule.completedAt!.toLocal()}",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+              ],
             ),
-          // Add task button
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[100],
-                foregroundColor: const Color(0xFF3F51B5),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 20),
+
+            // Action button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  backgroundColor: const Color(0xFF3F51B5),
+                ),
+                child: const Text(
+                  "Edit Task",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add),
-                  SizedBox(width: 8),
-                  Text('일정 추가'),
-                ],
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildActionIcon(IconData icon, String label) {
-    return Column(
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    bool boldValue = false,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: Colors.grey[600], size: 24),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 12,
+        Icon(icon, color: const Color(0xFF3F51B5), size: 20),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 16,
+                  fontWeight: boldValue ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ],
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildTaskItem(String title, String description) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.flag_outlined, color: Color(0xFF3F51B5)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

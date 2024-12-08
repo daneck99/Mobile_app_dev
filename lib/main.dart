@@ -12,9 +12,12 @@ import 'firebase_options.dart';
 import 'login/LoginPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'splash_screen.dart';
+import 'package:flutter/rendering.dart';
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  debugPaintSizeEnabled = false; // Ensure this is false
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
