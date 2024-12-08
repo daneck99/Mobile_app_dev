@@ -6,7 +6,6 @@ import 'package:security/widgets/taskListPage/taskCard.dart';
 import 'package:security/widgets/taskListPage/taskDetail.dart';
 import '../map/map_page.dart';
 import '../models/schedule_model.dart';
-import 'package:security/widgets/taskListPage/progressBar.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({Key? key}) : super(key: key);
@@ -60,11 +59,21 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
   // Get tasks filtered by the selected date
   List<Schedule> _getSchedulesForSelectedDate() {
-    return schedules.where((schedule) {
+    final filteredSchedules = schedules.where((schedule) {
       return schedule.date.year == selectedDate.year &&
           schedule.date.month == selectedDate.month &&
           schedule.date.day == selectedDate.day;
     }).toList();
+
+    // 정렬: 체크된 항목은 아래로, 나머지는 시작 시간 순서대로 정렬
+    filteredSchedules.sort((a, b) {
+      if (a.isCompleted != b.isCompleted) {
+        return a.isCompleted ? 1 : -1; // 체크된 항목은 아래로
+      }
+      return a.startTime.compareTo(b.startTime); // 시작 시간 기준 정렬
+    });
+
+    return filteredSchedules;
   }
 
   // Navigate to the previous day
@@ -73,6 +82,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
       selectedDate = selectedDate.subtract(const Duration(days: 1));
     });
   }
+
   // Navigate to the next day
   void _goToNextDay() {
     setState(() {
@@ -84,29 +94,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
   Widget build(BuildContext context) {
     final filteredSchedules = _getSchedulesForSelectedDate();
 
-    final now = DateTime.now();
-    final todayStart = DateTime(now.year, now.month, now.day);
-
-    // 오늘 날짜의 일정 필터링
-    final todaySchedules = schedules.where((schedule) {
-      final taskDate = schedule.date;
-      return taskDate.year == todayStart.year &&
-          taskDate.month == todayStart.month &&
-          taskDate.day == todayStart.day;
-    }).toList();
-
-    // 정렬: 체크된 항목은 아래로, 나머지는 시작시간 순서
-    todaySchedules.sort((a, b) {
-      if (a.isCompleted != b.isCompleted) {
-        return a.isCompleted ? 1 : -1; // 체크된 항목은 아래로
-      }
-      return a.startTime.compareTo(b.startTime); // 시작시간 기준 정렬
-    });
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '오늘의 업무 목록',
+          '업무 목록',
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
@@ -120,8 +111,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
         children: [
           // Date selector row
           Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -130,8 +120,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   onPressed: _goToPreviousDay,
                 ),
                 Text(
-                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(
-                      2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
+                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -167,8 +156,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              TaskDetailSheet(schedule: schedule),
+                          builder: (context) => TaskDetailSheet(schedule: schedule),
                         ),
                       );
 
@@ -198,8 +186,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  MapScreen(), // Replace with your add schedule page
+              builder: (context) => MapScreen(), // Replace with your add schedule page
             ),
           );
           // Refresh if a new task was added
@@ -212,5 +199,3 @@ class _TaskListScreenState extends State<TaskListScreen> {
     );
   }
 }
-///////////////////////////////////////////////////
-/////////////////////////////////
