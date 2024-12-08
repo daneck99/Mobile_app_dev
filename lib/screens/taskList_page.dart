@@ -6,6 +6,7 @@ import 'package:security/widgets/taskListPage/taskCard.dart';
 import 'package:security/widgets/taskListPage/taskDetail.dart';
 import '../map/map_page.dart';
 import '../models/schedule_model.dart';
+import 'package:security/widgets/taskListPage/progressBar.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({Key? key}) : super(key: key);
@@ -18,6 +19,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
   List<Schedule> schedules = [];
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool isLoading = true;
+
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -55,8 +58,32 @@ class _TaskListScreenState extends State<TaskListScreen> {
     }
   }
 
+  // Get tasks filtered by the selected date
+  List<Schedule> _getSchedulesForSelectedDate() {
+    return schedules.where((schedule) {
+      return schedule.date.year == selectedDate.year &&
+          schedule.date.month == selectedDate.month &&
+          schedule.date.day == selectedDate.day;
+    }).toList();
+  }
+
+  // Navigate to the previous day
+  void _goToPreviousDay() {
+    setState(() {
+      selectedDate = selectedDate.subtract(const Duration(days: 1));
+    });
+  }
+  // Navigate to the next day
+  void _goToNextDay() {
+    setState(() {
+      selectedDate = selectedDate.add(const Duration(days: 1));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final filteredSchedules = _getSchedulesForSelectedDate();
+
     final now = DateTime.now();
     final todayStart = DateTime(now.year, now.month, now.day);
 
@@ -89,44 +116,101 @@ class _TaskListScreenState extends State<TaskListScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : todaySchedules.isEmpty
-          ? const Center(
-        child: Text(
-          '오늘 등록된 일정이 없습니다.',
-          style: TextStyle(fontSize: 16, color: Colors.black),
-        ),
-      )
-          : ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: todaySchedules.length,
-        itemBuilder: (context, index) {
-          final schedule = todaySchedules[index];
-          return GestureDetector(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) =>
-                    TaskDetailSheet(schedule: schedule),
-              );
-            },
-            child: TaskCard(
-              schedule: schedule,
+      body: Column(
+        children: [
+          // Date selector row
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: _goToPreviousDay,
+                ),
+                Text(
+                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(
+                      2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward),
+                  onPressed: _goToNextDay,
+                ),
+              ],
             ),
-          );
-        },
+          ),
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Expanded(
+            child: RefreshIndicator(
+              onRefresh: _fetchSchedules, // Pull-to-refresh callback
+              child: filteredSchedules.isEmpty
+                  ? const Center(
+                child: Text(
+                  '등록된 일정이 없습니다.',
+                  style: TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              )
+                  : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: filteredSchedules.length,
+                itemBuilder: (context, index) {
+                  final schedule = filteredSchedules[index];
+                  return GestureDetector(
+                    onTap: () async {
+                      // Await for the result from TaskDetailSheet
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TaskDetailSheet(schedule: schedule),
+                        ),
+                      );
+
+                      // Refresh schedules if needed
+                      if (result == 'refresh') {
+                        _fetchSchedules();
+                      }
+                    },
+                    child: TaskCard(
+                      schedule: schedule,
+                      onEdit: (updatedSchedule) {
+                        _fetchSchedules(); // Refresh after editing
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          const ProgressBar(),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF3F51B5),
         child: const Icon(Icons.add),
-        onPressed: () {
-          // Add a new task or navigate to another screen
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  MapScreen(), // Replace with your add schedule page
+            ),
+          );
+          // Refresh if a new task was added
+          if (result == 'refresh') {
+            _fetchSchedules();
+          }
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
+///////////////////////////////////////////////////
+/////////////////////////////////

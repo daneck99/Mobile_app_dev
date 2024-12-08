@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
 
-class ProgressBar extends StatelessWidget {
-  final int totalTasks; // 전체 task 개수
-  final int completedTasks; // 완료된 task 개수
+import '../../style/colors.dart';
 
-  const ProgressBar({
-    Key? key,
-    required this.totalTasks,
-    required this.completedTasks,
-  }) : super(key: key);
+class ProgressBar extends StatelessWidget {
+  const ProgressBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // 진행률 계산 (예: 완료된 개수 / 전체 개수)
-    final double progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
-
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
@@ -28,9 +20,9 @@ class ProgressBar extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '${(progress * 100).toInt()}% 진행률', // 퍼센트로 표시
-              style: const TextStyle(
+            const Text(
+              '100% 진행률',
+              style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -38,7 +30,7 @@ class ProgressBar extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
-              value: progress,
+              value: 0.4,
               backgroundColor: Colors.grey[800],
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
             ),
