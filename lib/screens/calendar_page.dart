@@ -4,7 +4,6 @@ import 'package:security/widgets/calenderPage/schedule_card.dart';
 import '../models/schedule_model.dart';
 import '../style/colors.dart';
 import 'package:security/widgets/calenderPage/today_banner.dart';
-import 'package:security/widgets/common/bottom_nav_bar.dart';
 import '../widgets/calenderPage/schedule_add.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,9 +16,10 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  int _selectedIndex = 0;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<Schedule> schedules = [];
+  Map<DateTime, int> taskCountByDate = {};
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -36,15 +36,27 @@ class _CalendarPageState extends State<CalendarPage> {
 
       final snapshot = await _firestore
           .collection('schedules')
-          .where('userId', isEqualTo: user.uid) // 로그인한 사용자 UID로 필터링
+          .where('userId', isEqualTo: user.uid)
           .get();
 
       final fetchedSchedules = snapshot.docs.map((doc) {
         return Schedule.fromJson(doc.data());
       }).toList();
 
+      // 날짜별 Task 개수 계산
+      final Map<DateTime, int> taskCounts = {};
+      for (var schedule in fetchedSchedules) {
+        final date = DateTime(
+          schedule.date.year,
+          schedule.date.month,
+          schedule.date.day,
+        );
+        taskCounts[date] = (taskCounts[date] ?? 0) + 1;
+      }
+
       setState(() {
         schedules = fetchedSchedules;
+        taskCountByDate = taskCounts;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -53,12 +65,6 @@ class _CalendarPageState extends State<CalendarPage> {
     }
   }
 
-  DateTime selectedDate = DateTime.utc(
-    DateTime.now().year,
-    DateTime.now().month,
-    DateTime.now().day,
-  );
-
   @override
   Widget build(BuildContext context) {
     // 선택된 날짜에 해당하는 일정 필터링
@@ -66,40 +72,50 @@ class _CalendarPageState extends State<CalendarPage> {
       return schedule.date.year == selectedDate.year &&
           schedule.date.month == selectedDate.month &&
           schedule.date.day == selectedDate.day;
-    }).toList()..sort((a, b) => a.startTime.compareTo(b.startTime));
+    }).toList()
+      ..sort((a, b) => a.startTime.compareTo(b.startTime));
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: primaryColor,
         tooltip: '새 일정 추가',
         onPressed: () async {
-          // ScheduleAdd 모달 창 열기
           final newSchedule = await showModalBottomSheet<Schedule>(
             context: context,
-            isScrollControlled: true,//스크롤링
+            isScrollControlled: true,
             builder: (_) {
               return Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.8, // 높이 제한 설정
-                  minHeight: 100, // 최소 높이
+                  maxHeight: MediaQuery.of(context).size.height * 0.8,
                 ),
                 child: ScheduleAdd(
                   selectedDate: selectedDate,
-                  initialSchedule: null, // 기존 데이터를 전달
+                  initialSchedule: null,
                 ),
               );
             },
           );
 
-          // 반환된 새 일정을 schedules 리스트에 추가
           if (newSchedule != null) {
-            setState(() {
-              schedules.add(newSchedule);
-            });
+            try {
+              await _firestore
+                  .collection('schedules')
+                  .doc(newSchedule.id)
+                  .set(newSchedule.toJson());
+
+              setState(() {
+                schedules.add(newSchedule);
+                _updateTaskCount(newSchedule.date);
+              });
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('스케줄 추가 실패: $e')),
+              );
+            }
           }
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
       body: SafeArea(
         child: Column(
@@ -107,41 +123,49 @@ class _CalendarPageState extends State<CalendarPage> {
             MainCalendar(
               selectedDate: selectedDate,
               onDaySelected: onDaySelected,
+              taskCountByDate: taskCountByDate,
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             TodayBanner(
               selectedDate: selectedDate,
               count: filteredSchedules.length,
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: filteredSchedules.isEmpty
-                    ? Center(
+                    ? const Center(
                   child: Text(
-                    '일정이 없습니다.',
+                    '선택한 날짜에 일정이 없습니다.',
                     style: TextStyle(fontSize: 16, color: Colors.black),
                   ),
                 )
                     : ListView.separated(
                   itemCount: filteredSchedules.length,
                   separatorBuilder: (context, index) {
-                    return SizedBox(height: 8);
+                    return const SizedBox(height: 8);
                   },
                   itemBuilder: (context, index) {
                     final schedule = filteredSchedules[index];
                     return Dismissible(
-                      key: Key(schedule.id.toString()), // 각 스케줄 고유 키 설정
-                      direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로만 스와이프
+                      key: Key(schedule.id),
+                      direction: DismissDirection.endToStart,
                       onDismissed: (direction) async {
                         try {
-                          await _firestore.collection('schedules').doc(schedule.id).delete();
+                          await _firestore
+                              .collection('schedules')
+                              .doc(schedule.id)
+                              .delete();
+
                           setState(() {
-                            schedules.removeWhere((s) => s.id == schedule.id);
+                            schedules.remove(schedule);
+                            _updateTaskCount(schedule.date);
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${schedule.content}이 삭제되었습니다.')),
+                            SnackBar(
+                              content: Text('${schedule.title}이 삭제되었습니다.'),
+                            ),
                           );
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -152,8 +176,8 @@ class _CalendarPageState extends State<CalendarPage> {
                       background: Container(
                         color: Colors.red,
                         alignment: Alignment.centerRight,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Icon(Icons.delete, color: Colors.white),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
                       ),
                       child: ScheduleCard(
                         startTime: schedule.startTime,
@@ -162,20 +186,21 @@ class _CalendarPageState extends State<CalendarPage> {
                         content: schedule.content,
                         creator: schedule.creator,
                         assignee: schedule.assignee,
-                        color: Color(schedule.colorID), // 기존 저장된 색상 사용
+                        color: Color(schedule.colorID),
                         onTap: () async {
-                          final updatedSchedule = await showModalBottomSheet<Schedule>(
+                          final updatedSchedule =
+                          await showModalBottomSheet<Schedule>(
                             context: context,
                             isScrollControlled: true,
                             builder: (_) {
                               return Container(
-                                padding: EdgeInsets.all(16),
+                                padding: const EdgeInsets.all(16),
                                 constraints: BoxConstraints(
                                   maxHeight: MediaQuery.of(context).size.height * 0.8,
                                 ),
                                 child: ScheduleAdd(
                                   selectedDate: selectedDate,
-                                  initialSchedule: schedule, // 기존 데이터(수정할 스케쥴)를 전달
+                                  initialSchedule: schedule,
                                 ),
                               );
                             },
@@ -189,8 +214,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                   .update(updatedSchedule.toJson());
 
                               setState(() {
-                                final index =
-                                schedules.indexWhere((s) => s.id == schedule.id);
+                                final index = schedules.indexWhere(
+                                        (s) => s.id == schedule.id);
                                 if (index != -1) {
                                   schedules[index] = updatedSchedule;
                                 }
@@ -208,7 +233,6 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
               ),
             ),
-
           ],
         ),
       ),
@@ -219,5 +243,11 @@ class _CalendarPageState extends State<CalendarPage> {
     setState(() {
       this.selectedDate = selectedDate;
     });
+  }
+
+  void _updateTaskCount(DateTime date) {
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+    taskCountByDate[normalizedDate] =
+        schedules.where((s) => s.date == normalizedDate).length;
   }
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:security/login/SuccessRegister.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:security/style/colors.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -10,9 +11,7 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('회원가입'),
-      ),
+      backgroundColor: primaryColor,
       body: const RegisterForm(),
     );
   }
@@ -37,83 +36,195 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       inAsyncCall: saving,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Email'),
-                onChanged: (value) {
-                  email = value;
-                },
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              TextFormField(
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password'),
-                onChanged: (value) {
-                  password = value;
-                },
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              TextFormField(
-                decoration: const InputDecoration(labelText: '이름'),
-                onChanged: (value) {
-                  userName = value;
-                },
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Sign Up',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                const Text(
+                  'Email',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[900],
+                    hintText: 'Enter your Email',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    email = value;
+                  },
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Password',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  obscureText: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[900],
+                    hintText: 'Enter your Password',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    password = value;
+                  },
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Name',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[900],
+                    hintText: 'Enter your Name',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    userName = value;
+                  },
+                ),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: () async {
                     try {
                       setState(() {
                         saving = true;
                       });
-                      final newUser =
-                      await _authentication.createUserWithEmailAndPassword(
-                          email: email, password: password);
+
+                      final newUser = await _authentication.createUserWithEmailAndPassword(
+                        email: email,
+                        password: password,
+                      );
+
                       await FirebaseFirestore.instance.collection('사용자').doc(newUser.user!.uid).set({
                         '이름': userName,
                         'email': email,
                         '계정 생성일': FieldValue.serverTimestamp(),
                       });
+
                       if (newUser.user != null) {
                         _formKey.currentState!.reset();
                         if (!mounted) return;
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SuccessRegisterPage()));
+                          context,
+                          MaterialPageRoute(builder: (context) => const SuccessRegisterPage()),
+                        );
                       }
+
                       setState(() {
                         saving = false;
                       });
+                    } on FirebaseAuthException catch (e) {
+                      setState(() {
+                        saving = false;
+                      });
+
+                      String errorMessage = '회원가입에 실패하였습니다. 다시 시도해주세요.';
+
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('오류'),
+                          content: Text(errorMessage),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('확인'),
+                            ),
+                          ],
+                        ),
+                      );
                     } catch (e) {
-                      print(e);
+                      setState(() {
+                        saving = false;
+                      });
+                      print('회원가입 오류: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('회원가입 중 오류가 발생했습니다.')),
+                      );
                     }
                   },
-                  child: Text('회원가입')),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text('이미 계정이 있다면?'),
-                  TextButton(
-                    child: Text('로그인'),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  )
-                ],
-              )
-            ],
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Already have an account?',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    TextButton(
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(color: Colors.deepPurple),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

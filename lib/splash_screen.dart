@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:security/style/colors.dart';
 import 'package:security/login/LoginPage.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: primaryColor,
       body: Stack(
         fit: StackFit.expand,
         children: [

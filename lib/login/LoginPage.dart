@@ -3,6 +3,7 @@ import 'package:security/login/RegisterPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:security/widgets/homePage/home_page.dart';
+import 'package:security/style/colors.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -10,9 +11,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('로그인'),
-      ),
+      backgroundColor: primaryColor,
       body: const LoginForm(),
     );
   }
@@ -36,42 +35,93 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return ModalProgressHUD(
       inAsyncCall: saving,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formkey,
-          child: ListView(
-            children: [
-              TextFormField(
-                decoration: const InputDecoration(labelText: 'Email'),
-                onChanged: (value) {
-                  email = value;
-                },
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              TextFormField(
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password'),
-                onChanged: (value) {
-                  password = value;
-                },
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              ElevatedButton(
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formkey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Login',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                const Text(
+                  'Email',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[900],
+                    hintText: 'Enter your Email',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    email = value;
+                  },
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Password',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  obscureText: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[900],
+                    hintText: 'Enter your Password',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    password = value;
+                  },
+                ),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: () async {
                     try {
                       setState(() {
                         saving = true;
                       });
 
-                      final currentUser =
-                      await _authentication.signInWithEmailAndPassword(
-                          email: email, password: password);
-      
+                      final currentUser = await _authentication.signInWithEmailAndPassword(
+                        email: email,
+                        password: password,
+                      );
+
                       if (currentUser.user != null) {
                         _formkey.currentState!.reset();
                         Navigator.pushReplacement(
@@ -88,22 +138,22 @@ class _LoginFormState extends State<LoginForm> {
                         saving = false;
                       });
 
-                      String errorMessage = '';
-                      if (e.code == 'invalid-credential') {
-                        errorMessage = '로그인에 실패하였습니다. 다시 시도해주세요.';
-                      } else {
-                        errorMessage = '로그인에 실패하였습니다. 다시 시도해주세요.';
+                      String errorMessage = '로그인에 실패하였습니다. 다시 시도해주세요.';
+                      if (e.code == 'user-not-found') {
+                        errorMessage = '등록되지 않은 사용자입니다.';
+                      } else if (e.code == 'wrong-password') {
+                        errorMessage = '비밀번호가 틀렸습니다.';
                       }
 
                       showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text('오류'),
+                          title: const Text('오류'),
                           content: Text(errorMessage),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: Text('확인'),
+                              child: const Text('확인'),
                             ),
                           ],
                         ),
@@ -115,26 +165,42 @@ class _LoginFormState extends State<LoginForm> {
                       print('Unexpected error: $e');
                     }
                   },
-                  child: Text('로그인')),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text('계정이 없다면?'),
-                  TextButton(
-                    child: Text('회원가입'),
-                    onPressed: () {
-                      Navigator.push(
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Don\'t have an account?',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    TextButton(
+                      child: const Text(
+                        'Sign Up',
+                        style: TextStyle(color: Colors.deepPurple),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => RegisterPage()));
-                    },
-                  )
-                ],
-              )
-            ],
+                          MaterialPageRoute(builder: (context) => RegisterPage()),
+                        );
+                      },
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 }
+

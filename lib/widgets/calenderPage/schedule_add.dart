@@ -27,7 +27,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
   final _titleController = TextEditingController();
   final _assigneeController = TextEditingController();
   Color _selectedColor = Colors.pinkAccent.shade100; // 기본 선택 색상
-
+  bool _isCompleted = false; // 체크박스 초기 상태
 
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
@@ -65,6 +65,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       _titleController.text = schedule.title;
       _contentController.text = schedule.content;
       _selectedColor = Color(schedule.colorID);
+      _isCompleted = schedule.isCompleted; // isCompleted 상태 초기화
 
       _startTime = TimeOfDay.fromDateTime(schedule.startTime);
       _endTime = TimeOfDay.fromDateTime(schedule.endTime);
@@ -131,6 +132,7 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       endTime: endTime,
       colorID: _selectedColor.value,
       createdAt: widget.initialSchedule?.createdAt ?? DateTime.now(),
+      isCompleted: _isCompleted, // 체크박스 상태 저장
       userId: user.uid, // 현재 사용자 UID 추가
     );
 
@@ -152,46 +154,6 @@ class _ScheduleAddState extends State<ScheduleAdd> {
       );
     }
   }
-
-  void _loadUserSchedules() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('로그인된 사용자가 없습니다.');
-      return;
-    }
-
-    try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('schedules')
-          .where('userId', isEqualTo: user.uid) // 사용자 UID 필터링
-          .get();
-
-      final List<Schedule> userSchedules = querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        return Schedule(
-          id: data['id'],
-          title: data['title'],
-          content: data['content'],
-          creator: data['creator'],
-          assignee: data['assignee'],
-          date: DateTime.parse(data['date']),
-          startTime: DateTime.parse(data['startTime']),
-          endTime: DateTime.parse(data['endTime']),
-          colorID: data['colorID'],
-          createdAt: DateTime.parse(data['createdAt']),
-          userId: data['userId'],
-        );
-      }).toList();
-
-      setState(() {
-        schedules = userSchedules;
-      });
-    } catch (e) {
-      print('스케줄 로드 오류: $e');
-    }
-  }
-
-
 
   @override
   Widget build(BuildContext context) {

@@ -161,29 +161,6 @@ class TaskDetailSheet extends StatelessWidget {
                 ],
               ),
             ),
-          // Add task button
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[100],
-                foregroundColor: const Color(0xFF3F51B5),
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add),
-                  SizedBox(width: 8),
-                  Text('일정 추가'),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
