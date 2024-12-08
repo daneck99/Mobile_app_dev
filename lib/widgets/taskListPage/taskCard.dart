@@ -60,6 +60,10 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
       if (isCompleted) {
         _controller.forward().then((_) => _controller.reverse());
       }
+
+      if (widget.onCompletionToggle != null) {
+        widget.onCompletionToggle!(isCompleted, isCompleted ? now : null);
+      }
     });
 
     // Firestore 업데이트
@@ -81,6 +85,56 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
     }
   }
 
+  void _showContextMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) =>
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('수정'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ScheduleEditPage(schedule: widget.schedule),
+                    ),
+                  );
+                },
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.delete),
+                title: const Text('삭제'),
+                onTap: () {
+                  Navigator.pop(context);
+                  if (widget.onDelete != null) {
+                    widget.onDelete!(widget.schedule);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.share),
+                title: const Text('공유'),
+                onTap: () {
+                  Navigator.pop(context);
+                  if (widget.onShare != null) {
+                    widget.onShare!(widget.schedule);
+                  }
+                },
+              ),
+            ],
+          ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final String time =
@@ -89,6 +143,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
         "${widget.schedule.date.year}-${widget.schedule.date.month.toString().padLeft(2, '0')}-${widget.schedule.date.day.toString().padLeft(2, '0')}";
 
     return GestureDetector(
+      onLongPress: () => _showContextMenu(context),
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Container(
@@ -182,17 +237,17 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                   ],
                 ),
               ),
-              if (widget.schedule.content.isNotEmpty)
+              if (widget.schedule.tags != null && widget.schedule.tags!.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Text(
-                    widget.schedule.content,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  padding: const EdgeInsets.all(16),
+                  child: Wrap(
+                    spacing: 8,
+                    children: widget.schedule.tags!
+                        .map((tag) => Chip(
+                      label: Text(tag),
+                      backgroundColor: Colors.grey[200],
+                    ))
+                        .toList(),
                   ),
                 ),
             ],
