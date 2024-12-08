@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:security/style/colors.dart';
 
 class SuccessRegisterPage extends StatelessWidget {
   const SuccessRegisterPage({super.key});
@@ -7,7 +6,7 @@ class SuccessRegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryColor,
+      backgroundColor: const Color(0xFFF5F5F5),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -25,7 +24,7 @@ class SuccessRegisterPage extends StatelessWidget {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: const Color(0xFF4A90E2),
                 minimumSize: const Size(150, 50), // 버튼 크기
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8), // 둥근 모서리
@@ -38,7 +37,7 @@ class SuccessRegisterPage extends StatelessWidget {
                 'Login',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.black,
+                  color: Colors.white,
                 ),
               ),
             ),

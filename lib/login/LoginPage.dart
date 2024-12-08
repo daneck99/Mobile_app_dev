@@ -3,7 +3,6 @@ import 'package:security/login/RegisterPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:security/widgets/homePage/home_page.dart';
-import 'package:security/style/colors.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -44,7 +43,7 @@ class _LoginFormState extends State<LoginForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  '로그인',
+                  'Login',
                   style: TextStyle(
                     color: Color(0xFF333333), // 짙은 회색
                     fontSize: 32,
@@ -69,7 +68,7 @@ class _LoginFormState extends State<LoginForm> {
                     hintStyle: const TextStyle(color: Color(0xFFAAAAAA)), // 연한 회색
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: const Color(0xFFCCCCCC)), // 연한 테두리
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)), // 연한 테두리
                     ),
                   ),
                   onChanged: (value) {

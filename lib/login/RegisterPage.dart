@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:security/login/SuccessRegister.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:security/style/colors.dart';
 
 class RegisterPage extends StatelessWidget {
   const RegisterPage({super.key});
@@ -11,7 +10,7 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryColor,
+      backgroundColor: const Color(0xFFF5F5F5),
       body: const RegisterForm(),
     );
   }
@@ -47,7 +46,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 const Text(
                   'Sign Up',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF333333),
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                   ),
@@ -56,21 +55,21 @@ class _RegisterFormState extends State<RegisterForm> {
                 const Text(
                   'Email',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF333333),
                     fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Color(0xFF333333)),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.grey[900],
+                    fillColor: Colors.white,
                     hintText: 'Enter your Email',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    hintStyle: TextStyle(color: Color(0xFFAAAAAA)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
                     ),
                   ),
                   onChanged: (value) {
@@ -81,22 +80,22 @@ class _RegisterFormState extends State<RegisterForm> {
                 const Text(
                   'Password',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF333333),
                     fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   obscureText: true,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Color(0xFF333333)),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.grey[900],
+                    fillColor: Colors.white,
                     hintText: 'Enter your Password',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    hintStyle: TextStyle(color: Color(0xFFAAAAAA)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
                     ),
                   ),
                   onChanged: (value) {
@@ -107,21 +106,21 @@ class _RegisterFormState extends State<RegisterForm> {
                 const Text(
                   'Name',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF333333),
                     fontSize: 16,
                   ),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Color(0xFF333333)),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.grey[900],
+                    fillColor: Colors.white,
                     hintText: 'Enter your Name',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    hintStyle: TextStyle(color: Color(0xFFAAAAAA)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
                     ),
                   ),
                   onChanged: (value) {
@@ -131,7 +130,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 const SizedBox(height: 40),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: const Color(0xFF4A90E2),
                     minimumSize: const Size(double.infinity, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -199,7 +198,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   child: const Text(
                     'Sign Up',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontSize: 18,
                     ),
                   ),
@@ -210,12 +209,12 @@ class _RegisterFormState extends State<RegisterForm> {
                   children: [
                     const Text(
                       'Already have an account?',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Color(0xFF333333)),
                     ),
                     TextButton(
                       child: const Text(
                         'Login',
-                        style: TextStyle(color: Colors.deepPurple),
+                        style: TextStyle(color: Color(0xFF4A90E2)),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
