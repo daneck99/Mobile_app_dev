@@ -88,7 +88,7 @@ class _Creator extends StatelessWidget {
     return Expanded(
         child: Container(
       child: Text(
-        creator,
+        '보고자: $creator',
         style: const TextStyle(
           fontSize: 13,
         ),
@@ -107,7 +107,7 @@ class _Assignee extends StatelessWidget {
     return Expanded(
         child: Container(
       child: Text(
-        assignee,
+        '담당자: $assignee',
         style: const TextStyle(
           fontSize: 13,
         ),

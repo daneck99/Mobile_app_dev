@@ -242,7 +242,12 @@ class _ProfilePageState extends State<ProfilePage> {
       inAsyncCall: loading,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('프로필 페이지'),
+          title: Text(
+            '프로필 페이지',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         body: Padding(
           padding: EdgeInsets.all(16.0),
