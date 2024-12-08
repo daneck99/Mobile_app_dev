@@ -5,10 +5,10 @@ import '../../screens/taskList/ScheduleEditPage.dart';
 
 class TaskCard extends StatefulWidget {
   final Schedule schedule;
-  final Function(bool isCompleted, DateTime? completedAt)? onCompletionToggle; // Callback for completion toggle
-  final Function(Schedule schedule)? onEdit; // Callback for editing the schedule
-  final Function(Schedule schedule)? onDelete; // Callback for deleting the schedule
-  final Function(Schedule schedule)? onShare; // Callback for sharing the schedule
+  final Function(bool isCompleted, DateTime? completedAt)? onCompletionToggle;
+  final Function(Schedule schedule)? onEdit;
+  final Function(Schedule schedule)? onDelete;
+  final Function(Schedule schedule)? onShare;
 
   const TaskCard({
     Key? key,
@@ -20,7 +20,6 @@ class TaskCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-
   State<TaskCard> createState() => _TaskCardState();
 }
 
@@ -51,7 +50,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  void _toggleCompletion() {
+  Future<void> _toggleCompletion() async {
     final DateTime now = DateTime.now();
 
     setState(() {
@@ -61,59 +60,25 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
       if (isCompleted) {
         _controller.forward().then((_) => _controller.reverse());
       }
-
-      // Notify parent widget
-      if (widget.onCompletionToggle != null) {
-        widget.onCompletionToggle!(isCompleted, isCompleted ? now : null);
-      }
     });
-  }
 
-  void _showContextMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text('수정'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ScheduleEditPage(schedule: widget.schedule),
-                ),
-              );
-            },
-          ),
+    // Firestore 업데이트
+    try {
+      await FirebaseFirestore.instance
+          .collection('schedules')
+          .doc(widget.schedule.id)
+          .update({'isCompleted': isCompleted});
+    } catch (e) {
+      print('Error updating isCompleted: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('업데이트 중 오류가 발생했습니다.')),
+      );
+    }
 
-          ListTile(
-            leading: const Icon(Icons.delete),
-            title: const Text('삭제'),
-            onTap: () {
-              Navigator.pop(context);
-              if (widget.onDelete != null) {
-                widget.onDelete!(widget.schedule);
-              }
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.share),
-            title: const Text('공유'),
-            onTap: () {
-              Navigator.pop(context);
-              if (widget.onShare != null) {
-                widget.onShare!(widget.schedule);
-              }
-            },
-          ),
-        ],
-      ),
-    );
+    // Notify parent widget
+    if (widget.onCompletionToggle != null) {
+      widget.onCompletionToggle!(isCompleted, isCompleted ? now : null);
+    }
   }
 
   @override
@@ -124,14 +89,17 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
         "${widget.schedule.date.year}-${widget.schedule.date.month.toString().padLeft(2, '0')}-${widget.schedule.date.day.toString().padLeft(2, '0')}";
 
     return GestureDetector(
-      onLongPress: () => _showContextMenu(context),
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Container(
           margin: const EdgeInsets.symmetric(vertical: 8.0),
           decoration: BoxDecoration(
-            color: isCompleted ? Colors.green.withOpacity(0.1) : Colors.white,
+            color: isCompleted ? Colors.grey.withOpacity(0.5) : Colors.white,
             borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: Colors.black,
+              width: 1.0,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.1),
@@ -143,11 +111,10 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
           ),
           child: Column(
             children: [
-              // Title section
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Color(widget.schedule.colorID),
+                  color: isCompleted ? Colors.grey.withOpacity(0.5) : Color(widget.schedule.colorID),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8),
                     topRight: Radius.circular(8),
@@ -155,12 +122,12 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.flag, color: Colors.white),
+                    const Icon(Icons.flag, color: Colors.black),
                     Expanded(
                       child: Text(
                         widget.schedule.title,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -170,14 +137,15 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                     Checkbox(
                       value: isCompleted,
                       onChanged: (value) {
-                        _toggleCompletion();
+                        if (value != null) {
+                          _toggleCompletion();
+                        }
                       },
                       activeColor: Colors.green,
                     ),
                   ],
                 ),
               ),
-              // Details section
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
@@ -214,7 +182,6 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                   ],
                 ),
               ),
-              // Optional content section
               if (widget.schedule.content.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -226,20 +193,6 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              // Tags section
-              if (widget.schedule.tags != null && widget.schedule.tags!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Wrap(
-                    spacing: 8,
-                    children: widget.schedule.tags!
-                        .map((tag) => Chip(
-                      label: Text(tag),
-                      backgroundColor: Colors.grey[200],
-                    ))
-                        .toList(),
                   ),
                 ),
             ],
