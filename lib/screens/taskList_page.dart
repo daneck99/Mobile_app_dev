@@ -33,6 +33,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
         throw Exception('로그인된 사용자가 없습니다.');
       }
 
+      setState(() {
+        isLoading = true;
+      });
+
       final snapshot = await _firestore
           .collection('schedules')
           .where('userId', isEqualTo: user.uid)
@@ -75,18 +79,21 @@ class _TaskListScreenState extends State<TaskListScreen> {
     return filteredSchedules;
   }
 
+  void _updateSelectedDate(DateTime newDate) {
+    setState(() {
+      selectedDate = newDate;
+    });
+    _fetchSchedules(); // 새로운 날짜로 일정 갱신
+  }
+
   // Navigate to the previous day
   void _goToPreviousDay() {
-    setState(() {
-      selectedDate = selectedDate.subtract(const Duration(days: 1));
-    });
+    _updateSelectedDate(selectedDate.subtract(const Duration(days: 1)));
   }
 
   // Navigate to the next day
   void _goToNextDay() {
-    setState(() {
-      selectedDate = selectedDate.add(const Duration(days: 1));
-    });
+    _updateSelectedDate(selectedDate.add(const Duration(days: 1)));
   }
 
   @override
@@ -95,12 +102,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
     // 체크된 TaskCard 개수 및 진행률 계산
     final totalTasks = filteredSchedules.length;
-    final completedTasks = filteredSchedules
-        .where((task) => task.isCompleted)
-        .length;
-    final progress = totalTasks > 0
-        ? completedTasks / totalTasks
-        : 0.0; // 진행률 계산
+    final completedTasks = filteredSchedules.where((task) => task.isCompleted).length;
+    final progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0; // 진행률 계산
 
     return Scaffold(
       appBar: AppBar(
@@ -119,8 +122,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
         children: [
           // Date selector row
           Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -129,8 +131,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   onPressed: _goToPreviousDay,
                 ),
                 Text(
-                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(
-                      2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
+                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -150,13 +151,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
               onRefresh: _fetchSchedules,
               child: Column(
                 children: [
-
                   filteredSchedules.isEmpty
                       ? const Expanded(
                     child: Center(
                       child: Text(
                         '등록된 일정이 없습니다.',
-                        style: TextStyle(fontSize: 16, color: Colors.black),
+                        style:
+                        TextStyle(fontSize: 16, color: Colors.black),
                       ),
                     ),
                   )
@@ -181,9 +182,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                           },
                           child: TaskCard(
                             schedule: schedule,
-                            onEdit: (updatedSchedule) {
-                              _fetchSchedules();
-                            },
+                            onCompletionToggle: (_) => _fetchSchedules(),
                           ),
                         );
                       },
