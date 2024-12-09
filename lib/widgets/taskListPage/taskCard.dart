@@ -136,14 +136,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.delete),
-            title: const Text('삭제'),
-            onTap: () {
-              Navigator.pop(context); // BottomSheet 닫기
-              _deleteTask(context); // 삭제 작업 호출
-            },
-          ),
+
           ListTile(
             leading: const Icon(Icons.share),
             title: const Text('공유'),
