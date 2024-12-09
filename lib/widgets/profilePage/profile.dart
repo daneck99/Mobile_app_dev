@@ -10,6 +10,82 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:security/login/LoginPage.dart';
 
+class HomeProfile extends StatelessWidget {
+  const HomeProfile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Text('로그인되지 않았습니다.');
+    }
+
+    final userDoc = FirebaseFirestore.instance.collection('사용자').doc(user.uid);
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: userDoc.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('프로필 정보를 불러오는 중 오류가 발생했습니다.');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+
+        if (!snapshot.data!.exists) {
+          return Text('프로필 정보가 존재하지 않습니다.');
+        }
+
+        var data = snapshot.data!;
+        String name = data['이름'] ?? '이름 없음';
+        String photoUrl = data['photo'] ?? '';
+
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3), // changes position of shadow
+              ),
+            ],
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Row(
+            children: [
+              // 프로필 이미지
+              CachedNetworkImage(
+                imageUrl: photoUrl,
+                imageBuilder: (context, imageProvider) => CircleAvatar(
+                  radius: 30,
+                  backgroundImage: imageProvider,
+                ),
+                placeholder: (context, url) => CircleAvatar(
+                  radius: 30,
+                  backgroundImage: AssetImage("assets/profile.png"),
+                ),
+                errorWidget: (context, url, error) => CircleAvatar(
+                  radius: 30,
+                  backgroundImage: AssetImage("assets/profile.png"),
+                ),
+              ),
+              SizedBox(width: 16.0),
+              // 이름
+              Text(
+                name,
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class ProfilePage extends StatefulWidget {
   @override
   _ProfilePageState createState() => _ProfilePageState();

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:security/widgets/profilePage/profile.dart';
 import 'package:security/widgets/taskListPage/progressBar.dart';
 import 'package:security/widgets/taskListPage/taskCard.dart';
 import 'package:security/widgets/taskListPage/taskDetail.dart';
@@ -120,6 +121,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
       ),
       body: Column(
         children: [
+          HomeProfile(),
           // Date selector row
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
