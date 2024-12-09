@@ -311,7 +311,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => LoginPage()), // LoginPage로 직접 이동
+      MaterialPageRoute(builder: (context) => LoginPage()),
     );
   }
 
@@ -332,6 +332,7 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: EdgeInsets.all(16.0),
           child: Column(
             children: [
+              SizedBox(height: 20,),
               Row(
                 children: [
                   _profileImage != null || _photoUrl.isNotEmpty
@@ -391,10 +392,52 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
               SizedBox(height: 20),
+              AboutApp(),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class AboutApp extends StatelessWidget {
+  const AboutApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '애플리케이션 정보',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        ListTile(
+          leading: Icon(Icons.info),
+          title: Text('앱 버전'),
+          subtitle: Text('1.0.0'),
+        ),
+        ListTile(
+          leading: Icon(Icons.contact_mail),
+          title: Text('문의하기'),
+          subtitle: Text('CAUsecurityAdmin@cau.ac.kr'),
+        ),
+        ListTile(
+          leading: Icon(Icons.privacy_tip),
+          title: Text('개인정보 처리방침'),
+          onTap: () {
+            // 추후 추가할 것
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.update),
+          title: Text('업데이트 확인'),
+          onTap: () {
+            // 추후 추가할 것
+          },
+        ),
+      ],
     );
   }
 }
