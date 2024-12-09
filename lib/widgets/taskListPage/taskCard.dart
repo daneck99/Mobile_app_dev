@@ -212,6 +212,18 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                         fontSize: 14,
                       ),
                     ),
+                    const Spacer(),
+                    Icon(Icons.person, size: 16, color: Colors.grey[600]),
+                    const SizedBox(width: 4),
+                    Text(
+                      widget.schedule.assignee.isNotEmpty
+                          ? widget.schedule.assignee
+                          : '담당자 없음', // assignee 표시
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
                   ],
                 ),
               ),
