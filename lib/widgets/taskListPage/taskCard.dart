@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:security/models/schedule_model.dart';
+import '../../models/schedule_model.dart';
 import '../../screens/taskList/ScheduleEditPage.dart';
 
 class TaskCard extends StatefulWidget {
   final Schedule schedule;
-  final Function(bool isCompleted, DateTime? completedAt)? onCompletionToggle;
+  final Function(bool isCompleted)? onCompletionToggle;
   final Function(Schedule schedule)? onEdit;
   final Function(Schedule schedule)? onDelete;
   final Function(Schedule schedule)? onShare;
@@ -45,24 +45,29 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
   }
 
   @override
+  void didUpdateWidget(covariant TaskCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.schedule.isCompleted != oldWidget.schedule.isCompleted) {
+      setState(() {
+        isCompleted = widget.schedule.isCompleted;
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
   Future<void> _toggleCompletion() async {
-    final DateTime now = DateTime.now();
-
+    final newCompletedStatus = !isCompleted;
     setState(() {
-      isCompleted = !isCompleted;
+      isCompleted = newCompletedStatus;
 
       // Trigger animation
       if (isCompleted) {
         _controller.forward().then((_) => _controller.reverse());
-      }
-
-      if (widget.onCompletionToggle != null) {
-        widget.onCompletionToggle!(isCompleted, isCompleted ? now : null);
       }
     });
 
@@ -71,7 +76,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
       await FirebaseFirestore.instance
           .collection('schedules')
           .doc(widget.schedule.id)
-          .update({'isCompleted': isCompleted});
+          .update({'isCompleted': newCompletedStatus});
     } catch (e) {
       print('Error updating isCompleted: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -79,9 +84,9 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
       );
     }
 
-    // Notify parent widget
+    // 부모 위젯에 상태 전달
     if (widget.onCompletionToggle != null) {
-      widget.onCompletionToggle!(isCompleted, isCompleted ? now : null);
+      widget.onCompletionToggle!(isCompleted);
     }
   }
 
@@ -91,56 +96,51 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) =>
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('수정'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          ScheduleEditPage(schedule: widget.schedule),
-                    ),
-                  );
-                },
-              ),
-
-              ListTile(
-                leading: const Icon(Icons.delete),
-                title: const Text('삭제'),
-                onTap: () {
-                  Navigator.pop(context);
-                  if (widget.onDelete != null) {
-                    widget.onDelete!(widget.schedule);
-                  }
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.share),
-                title: const Text('공유'),
-                onTap: () {
-                  Navigator.pop(context);
-                  if (widget.onShare != null) {
-                    widget.onShare!(widget.schedule);
-                  }
-                },
-              ),
-            ],
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: const Text('수정'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ScheduleEditPage(schedule: widget.schedule),
+                ),
+              );
+            },
           ),
+          ListTile(
+            leading: const Icon(Icons.delete),
+            title: const Text('삭제'),
+            onTap: () {
+              Navigator.pop(context);
+              if (widget.onDelete != null) {
+                widget.onDelete!(widget.schedule);
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.share),
+            title: const Text('공유'),
+            onTap: () {
+              Navigator.pop(context);
+              if (widget.onShare != null) {
+                widget.onShare!(widget.schedule);
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
     final String time =
         "${widget.schedule.startTime.hour}:${widget.schedule.startTime.minute.toString().padLeft(2, '0')} - ${widget.schedule.endTime.hour}:${widget.schedule.endTime.minute.toString().padLeft(2, '0')}";
-    final String date =
-        "${widget.schedule.date.year}-${widget.schedule.date.month.toString().padLeft(2, '0')}-${widget.schedule.date.day.toString().padLeft(2, '0')}";
 
     return GestureDetector(
       onLongPress: () => _showContextMenu(context),
@@ -169,7 +169,9 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isCompleted ? Colors.grey.withOpacity(0.5) : Color(widget.schedule.colorID),
+                  color: isCompleted
+                      ? Colors.grey.withOpacity(0.5)
+                      : Color(widget.schedule.colorID),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8),
                     topRight: Radius.circular(8),
@@ -191,11 +193,7 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                     ),
                     Checkbox(
                       value: isCompleted,
-                      onChanged: (value) {
-                        if (value != null) {
-                          _toggleCompletion();
-                        }
-                      },
+                      onChanged: (_) => _toggleCompletion(),
                       activeColor: Colors.green,
                     ),
                   ],
@@ -214,42 +212,9 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
-                    const SizedBox(width: 4),
-                    Text(
-                      widget.schedule.assignee.isNotEmpty
-                          ? widget.schedule.assignee
-                          : '담당자 없음',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      date,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
                   ],
                 ),
               ),
-              if (widget.schedule.tags != null && widget.schedule.tags!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Wrap(
-                    spacing: 8,
-                    children: widget.schedule.tags!
-                        .map((tag) => Chip(
-                      label: Text(tag),
-                      backgroundColor: Colors.grey[200],
-                    ))
-                        .toList(),
-                  ),
-                ),
             ],
           ),
         ),
