@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:security/widgets/taskListPage/progressBar.dart';
 import 'package:security/widgets/taskListPage/taskCard.dart';
 import 'package:security/widgets/taskListPage/taskDetail.dart';
-import '../map/map_page.dart';
 import '../models/schedule_model.dart';
 
 class TaskListScreen extends StatefulWidget {
@@ -94,6 +93,15 @@ class _TaskListScreenState extends State<TaskListScreen> {
   Widget build(BuildContext context) {
     final filteredSchedules = _getSchedulesForSelectedDate();
 
+    // 체크된 TaskCard 개수 및 진행률 계산
+    final totalTasks = filteredSchedules.length;
+    final completedTasks = filteredSchedules
+        .where((task) => task.isCompleted)
+        .length;
+    final progress = totalTasks > 0
+        ? completedTasks / totalTasks
+        : 0.0; // 진행률 계산
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -111,7 +119,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
         children: [
           // Date selector row
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 16.0, vertical: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -120,7 +129,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   onPressed: _goToPreviousDay,
                 ),
                 Text(
-                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
+                  "${selectedDate.year}-${selectedDate.month.toString().padLeft(
+                      2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -137,65 +147,55 @@ class _TaskListScreenState extends State<TaskListScreen> {
               ? const Center(child: CircularProgressIndicator())
               : Expanded(
             child: RefreshIndicator(
-              onRefresh: _fetchSchedules, // Pull-to-refresh callback
-              child: filteredSchedules.isEmpty
-                  ? const Center(
-                child: Text(
-                  '등록된 일정이 없습니다.',
-                  style: TextStyle(fontSize: 16, color: Colors.black),
-                ),
-              )
-                  : ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: filteredSchedules.length,
-                itemBuilder: (context, index) {
-                  final schedule = filteredSchedules[index];
-                  return GestureDetector(
-                    onTap: () async {
-                      // Await for the result from TaskDetailSheet
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TaskDetailSheet(schedule: schedule),
-                        ),
-                      );
+              onRefresh: _fetchSchedules,
+              child: Column(
+                children: [
 
-                      // Refresh schedules if needed
-                      if (result == 'refresh') {
-                        _fetchSchedules();
-                      }
-                    },
-                    child: TaskCard(
-                      schedule: schedule,
-                      onEdit: (updatedSchedule) {
-                        _fetchSchedules(); // Refresh after editing
+                  filteredSchedules.isEmpty
+                      ? const Expanded(
+                    child: Center(
+                      child: Text(
+                        '등록된 일정이 없습니다.',
+                        style: TextStyle(fontSize: 16, color: Colors.black),
+                      ),
+                    ),
+                  )
+                      : Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: filteredSchedules.length,
+                      itemBuilder: (context, index) {
+                        final schedule = filteredSchedules[index];
+                        return GestureDetector(
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    TaskDetailSheet(schedule: schedule),
+                              ),
+                            );
+                            if (result == 'refresh') {
+                              _fetchSchedules();
+                            }
+                          },
+                          child: TaskCard(
+                            schedule: schedule,
+                            onEdit: (updatedSchedule) {
+                              _fetchSchedules();
+                            },
+                          ),
+                        );
                       },
                     ),
-                  );
-                },
+                  ),
+                  ProgressBar(progress: progress), // 동적으로 계산된 진행률 전달
+                ],
               ),
             ),
           ),
-          const ProgressBar(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF3F51B5),
-        child: const Icon(Icons.add),
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MapScreen(), // Replace with your add schedule page
-            ),
-          );
-          // Refresh if a new task was added
-          if (result == 'refresh') {
-            _fetchSchedules();
-          }
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
