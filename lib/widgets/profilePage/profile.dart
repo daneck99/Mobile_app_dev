@@ -68,11 +68,11 @@ class HomeProfile extends StatelessWidget {
                 ),
                 placeholder: (context, url) => CircleAvatar(
                   radius: 30,
-                  backgroundImage: AssetImage("assets/profile.png"),
+                  backgroundImage: AssetImage("assets/profile1.jpg"),
                 ),
                 errorWidget: (context, url, error) => CircleAvatar(
                   radius: 30,
-                  backgroundImage: AssetImage("assets/profile.png"),
+                  backgroundImage: AssetImage("assets/profile1.jpg"),
                 ),
               ),
               SizedBox(width: 16.0),
@@ -235,16 +235,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       placeholder: (context, url) => CircleAvatar(
                         radius: 50,
-                        backgroundImage: AssetImage("assets/profile.png"),
+                        backgroundImage: AssetImage("assets/profile1.jpg"),
                       ),
                       errorWidget: (context, url, error) => CircleAvatar(
                         radius: 50,
-                        backgroundImage: AssetImage("assets/profile.png"),
+                        backgroundImage: AssetImage("assets/profile1.jpg"),
                       ),
                     )
                         : CircleAvatar(
                       radius: 50,
-                      backgroundImage: AssetImage("assets/profile.png"),
+                      backgroundImage: AssetImage("assets/profile1.jpg"),
                     )),
                   ),
                 ),
@@ -346,16 +346,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     placeholder: (context, url) => CircleAvatar(
                       radius: 50,
-                      backgroundImage: AssetImage("assets/profile.png"),
+                      backgroundImage: AssetImage("assets/profile1.jpg"),
                     ),
                     errorWidget: (context, url, error) => CircleAvatar(
                       radius: 50,
-                      backgroundImage: AssetImage("assets/profile.png"),
+                      backgroundImage: AssetImage("assets/profile1.jpg"),
                     ),
                   )
                       : CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage("assets/profile.png"),
+                    backgroundImage: AssetImage("assets/profile1.jpg"),
                   ),
                   SizedBox(width: 20),
                   Expanded(
