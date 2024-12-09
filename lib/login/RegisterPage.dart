@@ -150,6 +150,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       await FirebaseFirestore.instance.collection('사용자').doc(newUser.user!.uid).set({
                         '이름': userName,
                         'email': email,
+                        'photo': '', // 기본 사진 필드 추가
                         '계정 생성일': FieldValue.serverTimestamp(),
                       });
 
