@@ -190,7 +190,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                       },
                     ),
                   ),
-                  ProgressBar(progress: progress), // 동적으로 계산된 진행률 전달
+                  ProgressBar(progress: progress),
                 ],
               ),
             ),

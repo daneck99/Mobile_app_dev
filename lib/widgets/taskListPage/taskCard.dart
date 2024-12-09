@@ -28,6 +28,30 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
+  void _deleteTask(BuildContext context) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('schedules')
+          .doc(widget.schedule.id)
+          .delete();
+
+      // 부모 위젯에 상태 전달 (onDelete 콜백)
+      if (widget.onDelete != null) {
+        widget.onDelete!(widget.schedule);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('스케줄이 삭제되었습니다.')),
+      );
+    } catch (e) {
+      print('Error deleting task: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('스케줄 삭제 중 오류가 발생했습니다: $e')),
+      );
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -116,10 +140,8 @@ class _TaskCardState extends State<TaskCard> with SingleTickerProviderStateMixin
             leading: const Icon(Icons.delete),
             title: const Text('삭제'),
             onTap: () {
-              Navigator.pop(context);
-              if (widget.onDelete != null) {
-                widget.onDelete!(widget.schedule);
-              }
+              Navigator.pop(context); // BottomSheet 닫기
+              _deleteTask(context); // 삭제 작업 호출
             },
           ),
           ListTile(
