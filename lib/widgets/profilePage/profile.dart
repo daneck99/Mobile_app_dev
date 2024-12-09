@@ -9,7 +9,9 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:security/login/LoginPage.dart';
+import 'package:security/style/colors.dart';
 
+/// 홈 화면에서 보일 프로필
 class HomeProfile extends StatelessWidget {
   const HomeProfile({super.key});
 
@@ -41,12 +43,13 @@ class HomeProfile extends StatelessWidget {
         String photoUrl = data['photo'] ?? '';
 
         return Container(
+          margin: EdgeInsets.all(8.0),
           padding: EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
+                color: primaryColor.withOpacity(0.2),
                 spreadRadius: 2,
                 blurRadius: 5,
                 offset: Offset(0, 3), // changes position of shadow
